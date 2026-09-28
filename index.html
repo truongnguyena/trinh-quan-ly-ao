@@ -1,0 +1,1516 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#070B14">
+<title>Logistics OS — Command Center</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   LOGISTICS OS — PREMIUM UI 2026
+   AAA Game UI (HSR/WuWa/ZZZ) × SaaS (Linear/Stripe)
+   Design tokens · Glassmorphism · Blue→Violet · Motion 180-260ms
+   ============================================================ */
+:root{
+  color-scheme:dark;
+  --bg:#070B14; --bg-2:#0A101D;
+  --surface:rgba(17,24,39,.72); --surface-2:rgba(255,255,255,.035);
+  --border:rgba(255,255,255,.08); --border-2:rgba(255,255,255,.16);
+  --text:#F2F5FA; --text2:#A9B4C9; --muted:#61708C;
+  --brand:#3B82F6; --brand-500:#3B82F6; --violet:#7C3AED; --cyan:#06B6D4;
+  --grad:linear-gradient(135deg,#3B82F6 0%,#7C3AED 100%);
+  --ok:#22C55E; --warn:#F59E0B; --bad:#EF4444;
+  --r-btn:14px; --r-card:20px; --r-modal:28px; --r-panel:24px;
+  --sh-card:0 8px 30px rgba(59,130,246,.08), 0 0 0 1px rgba(255,255,255,.04);
+  --sh-pop:0 14px 44px rgba(2,6,18,.55), 0 0 0 1px rgba(255,255,255,.07);
+  --ease:cubic-bezier(.22,1,.36,1);
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Consolas,monospace;
+}
+body.theme-light{
+  color-scheme:light;
+  --bg:#EDF1F8; --bg-2:#E6EBF4;
+  --surface:rgba(255,255,255,.8); --surface-2:rgba(15,23,42,.03);
+  --border:rgba(15,23,42,.09); --border-2:rgba(15,23,42,.18);
+  --text:#0F172A; --text2:#46536D; --muted:#7E89A3;
+  --sh-card:0 8px 30px rgba(59,130,246,.10), 0 0 0 1px rgba(15,23,42,.05);
+  --sh-pop:0 14px 44px rgba(15,23,42,.14), 0 0 0 1px rgba(15,23,42,.06);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+button{font:inherit;letter-spacing:inherit;background:none;border:none;color:inherit;cursor:pointer;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;letter-spacing:-.01em;overflow-x:clip;min-height:100vh}
+/* ---- Ambient background: orbs + grid ---- */
+.bg-fx{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.bg-fx i{position:absolute;border-radius:50%;filter:blur(110px);opacity:.5;animation:orb 16s ease-in-out infinite alternate}
+.bg-fx i:nth-child(1){width:560px;height:560px;background:radial-gradient(circle,#3B82F6 0%,transparent 65%);top:-180px;left:-120px}
+.bg-fx i:nth-child(2){width:520px;height:520px;background:radial-gradient(circle,#7C3AED 0%,transparent 65%);bottom:-200px;right:-140px;animation-delay:-6s}
+.bg-fx i:nth-child(3){width:380px;height:380px;background:radial-gradient(circle,#06B6D4 0%,transparent 65%);top:38%;left:56%;opacity:.24;animation-delay:-11s}
+@keyframes orb{from{transform:translate(0,0) scale(1)}to{transform:translate(60px,40px) scale(1.15)}}
+.bg-fx .grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.025) 1px,transparent 1px);background-size:44px 44px;mask-image:radial-gradient(ellipse 90% 70% at 50% 0%,#000 30%,transparent 100%)}
+body.theme-light .bg-fx i{opacity:.3}
+body.theme-light .bg-fx .grid{background-image:linear-gradient(rgba(15,23,42,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,.035) 1px,transparent 1px)}
+::selection{background:rgba(59,130,246,.35)}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:rgba(148,163,184,.28);border-radius:8px;border:2px solid transparent;background-clip:content-box}
+::-webkit-scrollbar-track{background:transparent}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:8px}
+.mono{font-family:var(--mono);font-size:12.5px;font-weight:600;letter-spacing:-.02em}
+.hint{font-size:12px;color:var(--muted)}
+.ic{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-3px}
+/* ============================================================
+   DEMO CHROME BAR
+   ============================================================ */
+.demo-bar{position:sticky;top:0;z-index:60;height:54px;display:flex;align-items:center;gap:14px;padding:0 16px;background:rgba(7,11,20,.82);backdrop-filter:blur(20px) saturate(140%);border-bottom:1px solid rgba(255,255,255,.06)}
+.demo-logo{display:flex;align-items:center;gap:9px;font-weight:800;font-size:14.5px;letter-spacing:-.02em;color:#fff;white-space:nowrap;flex:none}
+.demo-logo .cube{width:27px;height:27px;border-radius:9px;background:var(--grad);display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 0 18px rgba(59,130,246,.55)}
+.demo-tag{font-size:10px;font-weight:800;letter-spacing:.12em;background:linear-gradient(135deg,#F59E0B,#F97316);color:#1C1004;padding:3px 9px;border-radius:7px;text-transform:uppercase}
+.demo-jump{margin-left:auto;display:flex;align-items:center;gap:10px;min-width:0}
+.demo-note{font-size:12px;color:rgba(255,255,255,.45);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.demo-jump select{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12);border-radius:11px;padding:6px 11px;font-size:12.5px;outline:none;font-family:var(--font);cursor:pointer}
+.dev-switch{display:flex;gap:3px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:11px;padding:3px;flex:none}
+.dev-btn{font-size:11.5px;font-weight:600;color:rgba(255,255,255,.55);padding:5px 10px;border-radius:8px;display:flex;gap:6px;align-items:center;white-space:nowrap;transition:all .18s var(--ease)}
+.dev-btn:hover{color:#fff}
+.dev-btn.on{background:var(--grad);color:#fff;box-shadow:0 2px 12px rgba(59,130,246,.5)}
+/* ============================================================
+   APP SHELL — floating glass sidebar + floating topbar
+   ============================================================ */
+.app{display:flex;align-items:flex-start;gap:14px;padding:14px;max-width:1512px;margin:0 auto}
+body.login-mode .sidebar,body.login-mode .topbar{display:none}
+.sidebar{width:242px;flex:none;position:sticky;top:68px;height:calc(100vh - 82px);overflow:auto;background:var(--surface);backdrop-filter:blur(22px) saturate(150%);border:1px solid var(--border);border-radius:var(--r-panel);padding:14px 11px;box-shadow:var(--sh-card)}
+.nav-group{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:700;margin:16px 10px 7px}
+.nav-group:first-child{margin-top:2px}
+.nav-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:9px 12px;border-radius:12px;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .18s var(--ease);border:1px solid transparent;position:relative}
+.nav-item:hover{background:var(--surface-2);color:var(--text);transform:translateX(2px)}
+.nav-item.active{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(124,58,237,.14));border-color:rgba(59,130,246,.35);color:#fff;box-shadow:0 0 18px rgba(59,130,246,.18), inset 0 0 12px rgba(59,130,246,.06)}
+body.theme-light .nav-item.active{color:var(--brand)}
+.nav-item .soon{margin-left:auto;font-size:9px;font-weight:800;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);padding:2px 6px;border-radius:6px;letter-spacing:.06em}
+.nav-item .cnt{margin-left:auto;font-size:10.5px;font-weight:800;color:#fff;background:var(--grad);padding:2px 8px;border-radius:999px;box-shadow:0 2px 10px rgba(59,130,246,.4)}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{position:sticky;top:68px;z-index:40;height:60px;display:flex;align-items:center;gap:12px;padding:0 14px;background:var(--surface);backdrop-filter:blur(22px) saturate(150%);border:1px solid var(--border);border-radius:18px;box-shadow:var(--sh-card);margin-bottom:16px}
+.gsearch{flex:1;max-width:460px;display:flex;align-items:center;gap:9px;background:var(--surface-2);border:1px solid var(--border);border-radius:12px;padding:9px 13px;color:var(--muted);cursor:pointer;transition:all .2s var(--ease)}
+.gsearch:hover{border-color:rgba(59,130,246,.4);box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+.gsearch input{border:none;outline:none;background:transparent;flex:1;color:var(--text);font:inherit;cursor:pointer;min-width:0}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:5px}
+.icon-btn{position:relative;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:12px;color:var(--text2);transition:all .18s var(--ease)}
+.icon-btn:hover{background:var(--surface-2);color:var(--text)}
+.icon-btn .dot{position:absolute;top:8px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--bad);box-shadow:0 0 8px var(--bad);border:2px solid var(--bg)}
+.branch{display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-radius:12px;padding:8px 13px;font-size:12.5px;font-weight:600;color:var(--text2);background:var(--surface-2);transition:all .18s var(--ease)}
+.branch:hover{border-color:var(--border-2)}
+.avatar{width:36px;height:36px;border-radius:12px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12.5px;box-shadow:0 4px 14px rgba(59,130,246,.4);cursor:pointer;border:none}
+.content{padding:0 2px 40px;max-width:1440px;width:100%}
+/* ============================================================
+   SCREENS + TRANSITION
+   ============================================================ */
+.screen{display:none}
+.screen.active{display:block;animation:pageIn .26s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:flex-start;gap:12px;margin-bottom:18px}
+.page-head h1{font-size:24px;font-weight:800;letter-spacing:-.03em}
+.page-head .sub{color:var(--text2);font-size:13px;margin-top:3px}
+.page-head .actions{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+/* ============================================================
+   COMPONENTS — glass cards, buttons, chips, badges
+   ============================================================ */
+.card{background:var(--surface);backdrop-filter:blur(20px) saturate(140%);border:1px solid var(--border);border-radius:var(--r-card);box-shadow:var(--sh-card);overflow-x:auto;transition:border-color .2s var(--ease)}
+.card:hover{border-color:rgba(59,130,246,.22)}
+.card-h{display:flex;align-items:center;padding:16px 18px;border-bottom:1px solid var(--border);font-weight:700;font-size:13.5px;letter-spacing:-.01em;gap:8px}
+.card-h .ic{color:var(--brand)}
+.card-h .right{margin-left:auto;display:flex;gap:8px;align-items:center}
+.card-b{padding:18px}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:var(--r-btn);font-size:13px;font-weight:600;border:1px solid transparent;position:relative;overflow:hidden;transition:all .2s var(--ease);cursor:pointer;font-family:var(--font)}
+.btn.primary{background:var(--grad);color:#fff;box-shadow:0 4px 18px rgba(59,130,246,.35)}
+.btn.primary:hover{transform:translateY(-1px);box-shadow:0 8px 26px rgba(124,58,237,.45)}
+.btn.ghost{background:var(--surface-2);border-color:var(--border);color:var(--text2)}
+.btn.ghost:hover{border-color:var(--border-2);color:var(--text);transform:translateY(-1px)}
+.btn.soft{background:rgba(59,130,246,.14);color:var(--brand);border-color:rgba(59,130,246,.25)}
+.btn.soft:hover{background:rgba(59,130,246,.22)}
+.btn.sm{padding:6px 11px;font-size:12px;border-radius:11px}
+.ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.4);transform:scale(0);animation:rip .65s ease-out forwards;pointer-events:none}
+body.theme-light .ripple{background:rgba(59,130,246,.25)}
+@keyframes rip{to{transform:scale(3.2);opacity:0}}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:999px;border:1px solid var(--border);background:var(--surface-2);color:var(--text2);font-size:12.5px;font-weight:600;transition:all .18s var(--ease);cursor:pointer;position:relative;overflow:hidden;font-family:var(--font)}
+.chip:hover{border-color:rgba(59,130,246,.45);color:var(--brand);transform:translateY(-1px)}
+.chip.on{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 4px 16px rgba(59,130,246,.4)}
+.chip .n{font-size:10.5px;font-weight:800;opacity:.8}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3.5px 11px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap;letter-spacing:.01em;box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
+/* ============================================================
+   HERO COMMAND CENTER
+   ============================================================ */
+.hero{position:relative;overflow:hidden;border-radius:var(--r-panel);border:1px solid var(--border);background:linear-gradient(135deg,rgba(59,130,246,.12),rgba(124,58,237,.10) 55%,rgba(6,182,212,.08));backdrop-filter:blur(20px);padding:26px 28px 22px;box-shadow:var(--sh-card)}
+.hero:before{content:'';position:absolute;inset:0;background:radial-gradient(600px 240px at 85% -10%,rgba(124,58,237,.28),transparent 60%),radial-gradient(500px 220px at 8% 120%,rgba(59,130,246,.22),transparent 60%);pointer-events:none}
+.hero>*{position:relative}
+.hero-top{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:10.5px;font-weight:800;letter-spacing:.16em;color:var(--cyan);text-transform:uppercase;margin-bottom:8px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 0 rgba(34,197,94,.6);animation:live 1.8s infinite}
+@keyframes live{0%{box-shadow:0 0 0 0 rgba(34,197,94,.55)}70%{box-shadow:0 0 0 9px rgba(34,197,94,0)}100%{box-shadow:0 0 0 0 rgba(34,197,94,0)}}
+.hero-title{font-size:30px;font-weight:900;letter-spacing:-.035em;background:linear-gradient(90deg,#fff 30%,#B7C6FF 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1}
+body.theme-light .hero-title{background:linear-gradient(90deg,#0F172A 30%,#4338CA 100%);-webkit-background-clip:text;background-clip:text}
+.hero-sub{color:var(--text2);font-size:12.5px;margin-top:6px;font-family:var(--mono);font-weight:500}
+.hero-actions{margin-left:auto;display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.hero-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.hkp{background:rgba(10,16,29,.55);border:1px solid var(--border);border-radius:18px;padding:14px 15px;animation:pageIn .5s var(--ease) both;position:relative;overflow:hidden;transition:all .2s var(--ease)}
+.hkp:hover{transform:translateY(-3px);border-color:rgba(59,130,246,.4);box-shadow:0 10px 34px rgba(59,130,246,.16)}
+.hkp:before{content:'';position:absolute;top:0;left:14px;right:14px;height:1px;background:linear-gradient(90deg,transparent,rgba(59,130,246,.6),transparent)}
+.hkp-ic{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(124,58,237,.2));border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;color:var(--brand);margin-bottom:10px}
+.hkp-ic .ic{width:16px;height:16px}
+.lab{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.krow{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:5px}
+.krow .val{font-size:25px;font-weight:900;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.delta{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;border-radius:7px;padding:2px 8px;margin-top:9px}
+.delta.up{color:#4ADE80;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.22)}
+.delta.down{color:#F87171;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.22)}
+.delta.warn{color:#FBBF24;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.22)}
+.delta.neutral{color:var(--text2);background:var(--surface-2);border:1px solid var(--border)}
+.hkp-sub{font-size:10.5px;color:var(--muted);margin-top:5px}
+/* ============================================================
+   GRID / CHARTS / TABLE
+   ============================================================ */
+.grid-2{display:grid;grid-template-columns:1.55fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.mt{margin-top:14px}
+.tbl{width:100%;border-collapse:separate;border-spacing:0;font-size:13px}
+.tbl th{position:sticky;top:0;z-index:2;text-align:left;padding:11px 14px;background:rgba(10,16,29,.92);backdrop-filter:blur(10px);color:var(--muted);font-weight:700;font-size:10.5px;text-transform:uppercase;letter-spacing:.09em;border-bottom:1px solid var(--border);white-space:nowrap}
+body.theme-light .tbl th{background:rgba(241,245,252,.94)}
+.tbl td{padding:12px 14px;border-top:1px solid var(--border);vertical-align:middle;white-space:nowrap}
+.tbl tr{animation:rowIn .3s var(--ease) both}
+@keyframes rowIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.tbl tr.rowclick{cursor:pointer;transition:background .18s,box-shadow .18s}
+.tbl tr.rowclick:hover{background:rgba(59,130,246,.07);box-shadow:inset 3px 0 0 var(--brand)}
+.tbl .r{text-align:right}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--brand)}
+.tbl-wrap{max-height:420px;overflow:auto;border-radius:0 0 var(--r-card) var(--r-card)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.searchbar{display:flex;align-items:center;gap:9px;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:10px 13px;width:330px;color:var(--muted);transition:all .2s var(--ease)}
+.searchbar:focus-within{border-color:rgba(59,130,246,.55);box-shadow:0 0 0 3px rgba(59,130,246,.14), 0 0 20px rgba(59,130,246,.18)}
+.searchbar input{border:none;outline:none;background:transparent;flex:1;color:var(--text);font:inherit;min-width:0}
+/* ============================================================
+   TABS / TIMELINE / STEPPER / POD / DOCS
+   ============================================================ */
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--border);padding:0 16px;overflow-x:auto}
+.tab{padding:13px 15px;font-size:13px;font-weight:600;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:all .18s var(--ease);background:none;border-top:none;border-left:none;border-right:none;cursor:pointer;font-family:var(--font)}
+.tab:hover{color:var(--text)}
+.tab.on{color:var(--brand);border-bottom-color:var(--brand);text-shadow:0 0 14px rgba(59,130,246,.6)}
+.tabpane{display:none;padding:18px}
+.tabpane.on{display:block;animation:pageIn .24s var(--ease)}
+.kv{display:grid;grid-template-columns:130px 1fr;row-gap:11px;font-size:13.5px}
+.kv dt{color:var(--muted)}
+.kv dd{font-weight:500}
+.tl{position:relative;padding-left:36px}
+.tl:before{content:'';position:absolute;left:11px;top:8px;bottom:8px;width:2px;background:linear-gradient(180deg,var(--brand),rgba(124,58,237,.5) 60%,var(--border));border-radius:2px}
+.tl-item{position:relative;padding-bottom:22px}
+.tl-item:last-child{padding-bottom:4px}
+.tl-dot{position:absolute;left:-36px;top:1px;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--grad);color:#fff;box-shadow:0 0 0 3px rgba(59,130,246,.18), 0 0 14px rgba(59,130,246,.5)}
+.tl-item:first-child .tl-dot{animation:dotPulse 2.2s infinite}
+@keyframes dotPulse{0%{box-shadow:0 0 0 3px rgba(59,130,246,.18),0 0 14px rgba(59,130,246,.5)}50%{box-shadow:0 0 0 8px rgba(59,130,246,.06),0 0 22px rgba(59,130,246,.7)}100%{box-shadow:0 0 0 3px rgba(59,130,246,.18),0 0 14px rgba(59,130,246,.5)}}
+.tl-dot.mut{background:var(--surface-2);color:var(--muted);box-shadow:0 0 0 3px rgba(255,255,255,.06)}
+.tl-dot .ic{width:11px;height:11px}
+.tl-time{font-size:11.5px;font-weight:700;color:var(--brand);font-family:var(--mono)}
+.tl-title{font-weight:700;font-size:13.5px;margin-top:2px}
+.tl-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.stepper{display:flex;align-items:flex-start;padding:18px 16px 12px}
+.step{display:flex;flex-direction:column;align-items:center;gap:7px;flex:1;position:relative}
+.step:before,.step:after{content:'';position:absolute;top:13px;height:2px;background:var(--border);width:50%;left:0;border-radius:2px}
+.step:after{left:50%}
+.step:first-child:before,.step:last-child:after{display:none}
+.step.done:before,.step.done:after{background:var(--grad)}
+.step .sc{width:26px;height:26px;border-radius:50%;background:var(--surface-2);color:var(--muted);display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;position:relative;z-index:1;border:2px solid var(--border)}
+.step.done .sc{background:var(--grad);border-color:transparent;color:#fff;box-shadow:0 0 14px rgba(59,130,246,.5)}
+.step.cur .sc{border-color:var(--brand);color:var(--brand);background:rgba(59,130,246,.12);box-shadow:0 0 14px rgba(59,130,246,.3)}
+.step .sl{font-size:10.5px;font-weight:600;color:var(--muted);text-align:center}
+.step.done .sl,.step.cur .sl{color:var(--text)}
+.progress{height:7px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--border)}
+.progress i{display:block;height:100%;border-radius:999px;background:var(--grad);box-shadow:0 0 12px rgba(59,130,246,.6);transition:width .8s var(--ease)}
+.pod{display:flex;gap:14px;margin-top:14px;flex-wrap:wrap}
+.pod .ph{width:150px;height:100px;border-radius:14px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(124,58,237,.18));border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;color:var(--brand);flex:none}
+.pod .sig{width:170px;height:80px;border-radius:14px;border:1.5px dashed var(--border-2);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;color:var(--text2);font-style:italic;font-family:var(--mono)}
+.doc-gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.doc-item{display:flex;align-items:center;gap:12px;padding:13px 15px;border:1px solid var(--border);border-radius:16px;background:var(--surface-2);transition:all .18s var(--ease)}
+.doc-item:hover{border-color:rgba(59,130,246,.4);transform:translateY(-2px);box-shadow:0 8px 24px rgba(59,130,246,.12)}
+.doc-item .dic{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(124,58,237,.18));color:var(--brand);display:flex;align-items:center;justify-content:center;flex:none}
+.doc-item .grow{flex:1;min-width:0}
+.doc-item .grow b{font-size:13px;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-item .grow span{font-size:11.5px;color:var(--muted)}
+.empty{padding:36px 20px;text-align:center;color:var(--muted)}
+.empty .ic{width:32px;height:32px;margin-bottom:8px;opacity:.5}
+/* ============================================================
+   MISSION DETAIL (shipment)
+   ============================================================ */
+.mission-hero{position:relative;overflow:hidden;border-radius:var(--r-panel);border:1px solid var(--border);background:linear-gradient(120deg,rgba(59,130,246,.14),rgba(124,58,237,.12) 60%,rgba(6,182,212,.08));backdrop-filter:blur(20px);padding:22px 24px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;box-shadow:var(--sh-card);margin-bottom:14px}
+.mission-hero:before{content:'';position:absolute;inset:0;background:radial-gradient(480px 200px at 90% -20%,rgba(124,58,237,.3),transparent 60%);pointer-events:none}
+.mh-main{flex:1;min-width:240px;position:relative}
+.mh-code{font-size:21px;font-weight:800;letter-spacing:-.02em;margin-top:8px}
+.mh-route{display:flex;align-items:center;gap:12px;margin-top:10px;font-weight:700;flex-wrap:wrap}
+.mh-line{flex:1;min-width:90px;height:5px;border-radius:99px;background:var(--surface-2);border:1px solid var(--border);position:relative;overflow:hidden}
+.mh-line i{position:absolute;inset:0;width:0;border-radius:99px;background:var(--grad);box-shadow:0 0 12px rgba(59,130,246,.7)}
+.mh-meta{color:var(--text2);font-size:12.5px;margin-top:8px}
+.mh-side{display:flex;gap:12px;position:relative;flex-wrap:wrap}
+.mh-cell{background:rgba(10,16,29,.5);border:1px solid var(--border);border-radius:16px;padding:11px 15px;min-width:130px}
+.mh-cell span{display:block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.mh-cell b{font-size:14px}
+.grid-detail{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:14px}
+.map-ph{position:relative;min-height:280px;border-radius:var(--r-card);border:1px solid var(--border);overflow:hidden;background:radial-gradient(420px 260px at 70% 30%,rgba(59,130,246,.14),transparent 60%),linear-gradient(160deg,rgba(17,24,39,.85),rgba(10,16,29,.95));box-shadow:var(--sh-card)}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(59,130,246,.09) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.09) 1px,transparent 1px);background-size:36px 36px}
+.map-route{position:absolute;left:14%;top:62%;width:66%;height:2px;background:repeating-linear-gradient(90deg,var(--cyan) 0 10px,transparent 10px 18px);transform:rotate(-16deg);transform-origin:left center;opacity:.8;filter:drop-shadow(0 0 6px rgba(6,182,212,.7))}
+.map-pin{position:absolute;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9.5px;font-weight:800;letter-spacing:.08em;color:var(--cyan)}
+.map-pin i{width:16px;height:16px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--grad);box-shadow:0 0 16px rgba(59,130,246,.8);animation:dotPulse 2.4s infinite}
+.map-pin.dest i{background:linear-gradient(135deg,#06B6D4,#22C55E);box-shadow:0 0 16px rgba(34,197,94,.7)}
+.map-tag{position:absolute;left:12px;top:12px;display:flex;gap:7px;align-items:center;background:rgba(7,11,20,.75);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:11px;padding:8px 12px;font-size:11.5px;font-weight:600;color:var(--text2)}
+.cd-row{display:flex;gap:12px;align-items:center}
+.cd-row .avatar{width:42px;height:42px;border-radius:14px;cursor:default}
+.cd-stats{display:flex;gap:10px;margin-top:13px}
+.cd-stats span{flex:1;background:var(--surface-2);border:1px solid var(--border);border-radius:13px;padding:9px 12px;font-size:11px;color:var(--muted)}
+.cd-stats b{color:var(--text);font-size:12.5px}
+/* ============================================================
+   ALERTS / DROPDOWNS / COMMAND PALETTE / MODALS
+   ============================================================ */
+.alert-item{display:flex;gap:11px;padding:12px 16px;border-bottom:1px solid var(--border);align-items:flex-start;transition:background .15s}
+.alert-item:hover{background:var(--surface-2)}
+.alert-item:last-child{border-bottom:none}
+.alert-item .aic{width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none}
+.alert-item .t{font-weight:600;font-size:12.5px}
+.alert-item .s{color:var(--text2);font-size:12px;margin-top:1px}
+.sev.warn{background:rgba(245,158,11,.14);color:#FBBF24}
+.sev.danger{background:rgba(239,68,68,.14);color:#F87171}
+.sev.info{background:rgba(6,182,212,.14);color:#22D3EE}
+.sev.ok{background:rgba(34,197,94,.14);color:#4ADE80}
+.drop{position:absolute;top:64px;right:14px;display:none;background:rgba(13,20,35,.92);backdrop-filter:blur(24px) saturate(150%);border:1px solid var(--border-2);border-radius:20px;box-shadow:var(--sh-pop);width:360px;max-width:calc(100vw - 24px);z-index:70;overflow:hidden;animation:pageIn .2s var(--ease)}
+body.theme-light .drop{background:rgba(255,255,255,.94)}
+.drop.open{display:block}
+.drop .dh{padding:13px 16px;border-bottom:1px solid var(--border);font-weight:700;font-size:13px;display:flex;align-items:center}
+.drop .dh .right{margin-left:auto}
+.drop .df{padding:10px 16px;border-top:1px solid var(--border);text-align:center}
+.umenu{display:flex;gap:11px;align-items:center;width:100%;text-align:left;padding:11px 16px;font-weight:600;font-size:13px;color:var(--text2);background:none;border:none;cursor:pointer;font-family:var(--font);transition:background .15s}
+.umenu:hover{background:var(--surface-2);color:var(--text)}
+.cmdk-back{position:fixed;inset:0;background:rgba(4,7,14,.6);backdrop-filter:blur(6px);display:none;justify-content:center;z-index:120;overflow:auto}
+.cmdk-back.open{display:flex}
+.cmdk{width:620px;max-width:calc(100vw - 24px);height:fit-content;margin-top:9vh;background:rgba(13,20,35,.94);backdrop-filter:blur(26px) saturate(150%);border:1px solid var(--border-2);border-radius:var(--r-modal);box-shadow:var(--sh-pop),0 0 60px rgba(59,130,246,.15);overflow:hidden;animation:modalIn .22s var(--ease)}
+body.theme-light .cmdk{background:rgba(255,255,255,.96)}
+@keyframes modalIn{from{opacity:0;transform:scale(.94) translateY(14px)}to{opacity:1;transform:none}}
+.cmdk-in{display:flex;gap:11px;padding:16px 18px;border-bottom:1px solid var(--border);align-items:center;color:var(--muted)}
+.cmdk-in input{flex:1;border:none;outline:none;background:transparent;font-size:15px;color:var(--text);font-family:var(--font)}
+.cmdk-in input::placeholder{color:var(--muted)}
+.cmdk-list{max-height:400px;overflow:auto;padding:8px}
+.cmdk-item{display:flex;gap:11px;align-items:center;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .12s}
+.cmdk-item:hover{background:var(--surface-2)}
+.cmdk-item.sel{background:linear-gradient(135deg,rgba(59,130,246,.16),rgba(124,58,237,.12));color:var(--brand);box-shadow:inset 0 0 0 1px rgba(59,130,246,.3)}
+.cmdk-item .k{margin-left:auto;font-size:10.5px;color:var(--muted);white-space:nowrap}
+.cmdk-foot{padding:10px 16px;border-top:1px solid var(--border);color:var(--muted);font-size:11px;display:flex;gap:16px}
+.modal-back{position:fixed;inset:0;background:rgba(4,7,14,.62);backdrop-filter:blur(7px);display:none;align-items:flex-start;justify-content:center;z-index:100;padding:36px 16px;overflow:auto}
+.modal-back.open{display:flex}
+.paper{width:760px;max-width:100%;background:rgba(15,22,38,.96);backdrop-filter:blur(26px) saturate(150%);border:1px solid var(--border-2);border-radius:var(--r-modal);box-shadow:var(--sh-pop),0 0 70px rgba(124,58,237,.14);overflow:hidden;animation:modalIn .24s var(--ease)}
+body.theme-light .paper{background:rgba(255,255,255,.97)}
+.paper-h{padding:20px 28px;display:flex;align-items:center;border-bottom:1px solid var(--border)}
+.paper-b{padding:24px 28px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12px;font-weight:700;color:var(--text2);margin-bottom:6px;letter-spacing:.01em}
+.field .inp{width:100%;border:1px solid var(--border-2);border-radius:13px;padding:10px 13px;font-size:13.5px;outline:none;background:var(--surface-2);color:var(--text);font-family:var(--font);transition:all .2s var(--ease)}
+.field .inp:focus{border-color:rgba(59,130,246,.6);box-shadow:0 0 0 3px rgba(59,130,246,.15), 0 0 22px rgba(59,130,246,.22)}
+.f2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+/* ============================================================
+   AUTH (login)
+   ============================================================ */
+#screen-login{min-height:calc(100vh - 54px);display:none}
+#screen-login.active{display:flex}
+.login-wrap{display:flex;flex:1;min-width:0}
+.auth-side{flex:1.1;background:transparent;color:#fff;padding:52px;display:flex;flex-direction:column;justify-content:space-between;min-width:0;position:relative}
+.auth-side h2{font-size:32px;font-weight:900;letter-spacing:-.035em;line-height:1.16;margin:0;background:linear-gradient(90deg,#fff 40%,#B7C6FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.auth-feat{display:flex;gap:10px;align-items:flex-start;margin-top:16px;font-size:13.5px;color:#B9C7F2}
+.auth-feat .ic{color:var(--cyan)}
+.auth-form{flex:1;display:flex;align-items:center;justify-content:center;padding:36px;background:var(--surface);backdrop-filter:blur(24px);border-left:1px solid var(--border);border-radius:0 var(--r-panel) var(--r-panel) 0}
+.login-card{width:400px;max-width:100%}
+/* ============================================================
+   MOBILE CARDS / DOCK / FAB (d-mobile)
+   ============================================================ */
+.cards{display:none}
+.ocard{background:var(--surface);backdrop-filter:blur(18px);border:1px solid var(--border);border-radius:18px;padding:13px 15px;margin-bottom:10px;cursor:pointer;box-shadow:var(--sh-card);transition:transform .15s var(--ease),border-color .15s}
+.ocard:active{transform:scale(.98)}
+.ocard:hover{border-color:rgba(59,130,246,.45)}
+.ocard .or1{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;gap:8px}
+.ocard .or2{font-weight:700;font-size:15px}
+.ocard .or3{color:var(--text2);font-size:12.5px;margin:2px 0 8px}
+.ocard .or4{display:flex;justify-content:space-between;align-items:center;font-size:12.5px;color:var(--muted);gap:8px}
+.ocard .or4 b{color:var(--text);font-size:13.5px}
+.mnav{display:none;position:fixed;bottom:0;left:0;right:0;height:62px;background:rgba(13,20,35,.92);backdrop-filter:blur(24px) saturate(150%);border-top:1px solid var(--border);z-index:55;box-shadow:0 -8px 30px rgba(2,6,18,.5)}
+.mnav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;color:var(--muted);background:none;border:none;cursor:pointer;font-family:var(--font);transition:color .18s}
+.mnav button.on{color:var(--brand);text-shadow:0 0 12px rgba(59,130,246,.7)}
+.fab-wrap{position:relative;flex:none;width:78px;display:flex;align-items:center;justify-content:center}
+.fab{position:absolute;top:-24px;width:58px;height:58px;border-radius:50%;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;border:4px solid var(--bg);box-shadow:0 10px 30px rgba(59,130,246,.55),0 0 0 1px rgba(255,255,255,.12) inset;transition:transform .28s cubic-bezier(.34,1.56,.64,1);cursor:pointer}
+.fab .ic{width:22px;height:22px;stroke-width:2.4}
+body.fab-open .fab{transform:rotate(135deg)}
+.fab-fan{position:absolute;bottom:40px;left:50%;width:0;height:0;pointer-events:none}
+.fab-fan button{position:absolute;left:-27px;bottom:0;width:54px;height:54px;border-radius:50%;background:rgba(17,24,39,.94);backdrop-filter:blur(18px);border:1px solid var(--border-2);box-shadow:0 10px 30px rgba(2,6,18,.5);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9px;font-weight:700;color:var(--text2);opacity:0;transform:translateY(8px) scale(.5);transition:transform .22s var(--ease),opacity .22s;pointer-events:none;cursor:pointer;font-family:var(--font)}
+.fab-fan button .ic{color:var(--brand)}
+body.fab-open .fab-fan button{opacity:1;pointer-events:auto}
+.fab-fan button:nth-child(1){transition-delay:.03s}
+.fab-fan button:nth-child(2){transition-delay:.07s}
+.fab-fan button:nth-child(3){transition-delay:.11s}
+body.fab-open .fab-fan button:nth-child(1){transform:translate(-64px,-58px)}
+body.fab-open .fab-fan button:nth-child(2){transform:translate(0,-88px)}
+body.fab-open .fab-fan button:nth-child(3){transform:translate(64px,-58px)}
+.fab-back{position:fixed;inset:0;z-index:54;display:none;background:rgba(4,7,14,.35);backdrop-filter:blur(2px)}
+body.fab-open .fab-back{display:block}
+body.d-mobile .mnav{display:flex;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom,0px));height:66px;border-radius:22px;border:1px solid var(--border-2);box-shadow:0 12px 36px rgba(2,6,18,.55)}
+body.login-mode .mnav{display:none!important}
+body.d-mobile .ph-nav{display:none}
+body.d-mobile .mnav{max-width:100vw}
+body.sim .app{max-width:min(430px,100vw);margin:0 auto;box-shadow:0 0 0 1px var(--border),0 24px 80px rgba(0,0,0,.5)}
+body.sim .mnav{left:50%;right:auto;transform:translateX(-50%);width:min(430px,100vw)}
+body.sim.d-tablet .app{max-width:900px}
+body.sim.d-tablet .mnav{display:none}
+/* ============================================================
+   DRIVER PHONE
+   ============================================================ */
+.driver-wrap{display:flex;gap:34px;align-items:flex-start;flex-wrap:wrap}
+.phone{width:392px;max-width:100%;border:9px solid #1C2740;border-radius:42px;background:var(--bg-2);box-shadow:0 30px 90px rgba(2,6,18,.6),0 0 0 1px rgba(255,255,255,.08),0 0 60px rgba(59,130,246,.12);display:flex;flex-direction:column;overflow:hidden;flex:none;position:relative;height:780px}
+.ph-status{height:34px;background:#05080F;display:flex;align-items:center;justify-content:space-between;padding:0 20px;font-size:12px;font-weight:700;color:#E2E8F0;flex:none}
+.ph-head{padding:16px 18px 10px;flex:none}
+.ph-body{flex:1;overflow:auto;padding:6px 14px 14px}
+.ph-nav{height:64px;background:rgba(13,20,35,.94);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;flex:none}
+.ph-nav div{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:10px;font-weight:700;color:var(--muted)}
+.ph-nav div.on{color:var(--brand);text-shadow:0 0 12px rgba(59,130,246,.6)}
+.trip{background:var(--surface);backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:18px;padding:14px;margin-bottom:10px;display:flex;gap:12px;align-items:center;transition:all .18s var(--ease)}
+.trip:hover{border-color:rgba(59,130,246,.4);transform:translateY(-1px)}
+.trip .time{font-weight:800;font-size:15px;width:48px;flex:none;text-align:center;font-family:var(--mono)}
+.trip .time small{display:block;font-size:9.5px;color:var(--cyan);font-weight:800;letter-spacing:.08em}
+.trip .info{flex:1;min-width:0}
+.trip .info .a{font-weight:700;font-size:13.5px}
+.trip .info .b{color:var(--text2);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trip .go{width:40px;height:40px;border-radius:14px;background:var(--grad);color:#fff;display:flex;align-items:center;justify-content:center;flex:none;box-shadow:0 4px 16px rgba(59,130,246,.45)}
+.trip.done{opacity:.55}
+.bigbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:17px;border-radius:18px;background:var(--grad);color:#fff;font-size:15px;font-weight:800;letter-spacing:.02em;box-shadow:0 8px 26px rgba(59,130,246,.4);position:relative;overflow:hidden;cursor:pointer;border:none;font-family:var(--font)}
+.bigbtn:active{transform:scale(.98)}
+.bigbtn.gray{background:var(--surface-2);color:var(--text);border:1.5px solid var(--border-strong,var(--border-2));box-shadow:none}
+.bigbtn.green{background:linear-gradient(135deg,#22C55E,#16A34A);box-shadow:0 8px 26px rgba(34,197,94,.4);pointer-events:none}
+.scanner{margin:8px 0 16px;height:230px;border-radius:22px;background:linear-gradient(160deg,#0A101D,#05080F);border:1px solid var(--border);position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.scanner .frame{width:150px;height:150px;border-radius:18px;position:relative}
+.scanner .frame i{position:absolute;width:34px;height:34px;border:3.5px solid var(--cyan);filter:drop-shadow(0 0 8px rgba(6,182,212,.8))}
+.scanner .frame i:nth-child(1){top:0;left:0;border-right:none;border-bottom:none;border-radius:16px 0 0 0}
+.scanner .frame i:nth-child(2){top:0;right:0;border-left:none;border-bottom:none;border-radius:0 16px 0 0}
+.scanner .frame i:nth-child(3){bottom:0;left:0;border-right:none;border-top:none;border-radius:0 0 0 16px}
+.scanner .frame i:nth-child(4){bottom:0;right:0;border-left:none;border-top:none;border-radius:0 0 16px 0}
+.scanner .scanline{position:absolute;left:12%;right:12%;height:3px;background:linear-gradient(90deg,transparent,var(--cyan),transparent);box-shadow:0 0 18px var(--cyan);border-radius:99px;animation:scan 2.1s ease-in-out infinite}
+@keyframes scan{0%,100%{top:20%}50%{top:74%}}
+/* ============================================================
+   TRACKING PUBLIC
+   ============================================================ */
+.trk-hero{text-align:center;padding:34px 0 22px}
+.trk-hero h1{font-size:34px;font-weight:900;letter-spacing:-.035em;background:linear-gradient(90deg,#fff 30%,#B7C6FF);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+body.theme-light .trk-hero h1{background:linear-gradient(90deg,#0F172A 30%,#4338CA);-webkit-background-clip:text;background-clip:text}
+.trk-glow{position:relative;border-radius:18px}
+.trk-glow:before{content:'';position:absolute;inset:-2px;border-radius:20px;background:var(--grad);filter:blur(14px);opacity:.45;z-index:0}
+.trk-glow>.card{position:relative;z-index:1}
+.trk-route{display:flex;align-items:center;gap:14px;padding:18px}
+.trk-route .pt{flex:1}
+.trk-route .pt small{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800;margin-bottom:3px}
+.trk-route .pt b{font-size:15px}
+.trk-route .mid{flex:1.4;text-align:center}
+/* ============================================================
+   LABEL / SKELETON / MISC
+   ============================================================ */
+.labelcard{width:300px;border:1.5px solid #0F172A;border-radius:14px;padding:14px;background:#fff;color:#0F172A}
+.barcode{height:34px;margin-top:10px;background:repeating-linear-gradient(90deg,#0F172A 0 2px,transparent 2px 4px,#0F172A 4px 5px,transparent 5px 9px,#0F172A 9px 12px,transparent 12px 14px)}
+.skel{background:linear-gradient(90deg,rgba(255,255,255,.04) 25%,rgba(255,255,255,.1) 37%,rgba(255,255,255,.04) 63%);background-size:400% 100%;animation:skel 1.2s infinite;border-radius:10px}
+body.theme-light .skel{background:linear-gradient(90deg,rgba(15,23,42,.05) 25%,rgba(15,23,42,.1) 37%,rgba(15,23,42,.05) 63%);background-size:400% 100%}
+@keyframes skel{0%{background-position:100% 0}100%{background-position:-100% 0}}
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(20px);background:rgba(13,20,35,.94);backdrop-filter:blur(16px);border:1px solid var(--border-2);color:#fff;padding:12px 19px;border-radius:15px;font-size:13px;font-weight:600;opacity:0;pointer-events:none;transition:.25s var(--ease);z-index:200;box-shadow:0 16px 50px rgba(2,6,18,.6),0 0 0 1px rgba(59,130,246,.2);display:flex;gap:9px;align-items:center;max-width:86vw}
+#toast .ic{color:var(--cyan)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.donut-wrap{display:flex;gap:20px;align-items:center}
+/* ============================================================
+   RESPONSIVE — Tablet 768 / Mobile 390 (layouts riêng)
+   ============================================================ */
+body.d-tablet .sidebar{width:74px;padding:12px 8px}
+body.d-tablet .sidebar .nl{display:none}
+body.d-tablet .nav-item{justify-content:center;padding:12px 0;gap:0}
+body.d-tablet .nav-item .cnt,body.d-tablet .nav-item .soon{display:none}
+body.d-tablet .nav-group{font-size:8px;text-align:center;margin:14px 0 4px;letter-spacing:.06em}
+body.d-tablet .gsearch{max-width:280px}
+body.d-tablet .kpis,body.d-tablet .hero-grid{grid-template-columns:repeat(4,1fr);gap:10px}
+body.d-tablet .grid-2,body.d-tablet .grid-3,body.d-tablet .grid-detail{grid-template-columns:1fr}
+body.d-tablet .content{padding:0 0 30px}
+body.d-tablet .krow .val{font-size:21px}
+body.d-mobile .sidebar{display:none}
+body.d-mobile .demo-bar{height:50px;padding:0 10px;gap:8px}
+body.d-mobile .demo-note,body.d-mobile .demo-jump select{display:none}
+body.d-mobile .dev-btn .l{display:none}
+body.d-mobile .dev-btn{padding:5px 8px}
+body.d-mobile .gsearch,body.d-mobile .branch,body.d-mobile .tb-globe{display:none}
+body.d-mobile .topbar{height:56px;padding:0 14px}
+body.d-mobile .content{padding:0 2px 110px}
+body.d-mobile .page-head{flex-wrap:wrap;gap:8px}
+body.d-mobile .page-head h1{font-size:20px}
+body.d-mobile .page-head .actions{margin-left:0;width:100%}
+body.d-mobile .hero{padding:20px 16px 16px}
+body.d-mobile .hero-title{font-size:24px}
+body.d-mobile .hero-grid{display:flex;overflow-x:auto;gap:10px;scroll-snap-type:x mandatory;margin:0 -16px;padding:0 16px 8px;scrollbar-width:none}
+body.d-mobile .hero-grid::-webkit-scrollbar{display:none}
+body.d-mobile .hkp{min-width:64%;scroll-snap-align:start}
+body.d-mobile .grid-2,body.d-mobile .grid-3,body.d-mobile .grid-detail{grid-template-columns:1fr}
+body.d-mobile .filters{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;margin:10px 0}
+body.d-mobile .chip{white-space:nowrap;flex:none}
+body.d-mobile .searchbar{width:100%}
+body.d-mobile .only-tbl{display:none}
+body.d-mobile .cards{display:block}
+body.d-mobile .login-side{display:none}
+body.d-mobile .auth-form{border-left:none;border-radius:0}
+body.d-mobile .driver-wrap{gap:14px}
+body.d-mobile .driver-wrap > div:last-child{display:none}
+body.d-mobile .phone{width:100%;border:none;border-radius:0;height:auto;min-height:72vh;box-shadow:none}
+body.d-mobile .mnav{display:flex}
+body.d-mobile #screen-tracking .card{flex-direction:column}
+body.d-mobile .tabs{overflow-x:auto}
+body.d-mobile .f2{grid-template-columns:1fr}
+body.d-mobile .paper{width:100%;max-height:92vh;border-radius:22px 22px 0 0;align-self:flex-end}
+body.d-mobile .paper-b{padding:20px 16px}
+body.d-mobile .cmdk{margin-top:5vh}
+body.d-mobile .mission-hero{padding:18px 16px}
+body.login-mode .app{padding:0;max-width:none}
+@media (max-width:1020px){.demo-note{display:none}}
+</style>
+</head>
+<body>
+<div class="bg-fx"><i></i><i></i><i></i><div class="grid"></div></div>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg"><defs>
+<symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></symbol>
+<symbol id="i-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></symbol>
+<symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+<symbol id="i-truck" viewBox="0 0 24 24"><rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+<symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+<symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+<symbol id="i-chevd" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></symbol>
+<symbol id="i-chevr" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+<symbol id="i-back" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></symbol>
+<symbol id="i-print" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></symbol>
+<symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14h1v1h-1zM14 20h1v1h-1zM18 18h3v3h-3z"/></symbol>
+<symbol id="i-cam" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+<symbol id="i-pen" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+<symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+<symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+<symbol id="i-down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+<symbol id="i-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><line x1="7" y1="12" x2="17" y2="12"/></symbol>
+<symbol id="i-nav" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></symbol>
+<symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+<symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+<symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+<symbol id="i-more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/><circle cx="5" cy="12" r="1.6"/></symbol>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+<symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></symbol>
+<symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></symbol>
+</defs></svg>
+
+<!-- ============ DEMO CHROME ============ -->
+<div class="demo-bar">
+  <div class="demo-logo"><span class="cube">🚚</span> Logistics OS <span class="demo-tag">Demo UI/UX</span></div>
+  <div class="dev-switch" title="Xem trước theo thiết bị">
+    <button class="dev-btn" data-dev="desktop" onclick="lockDev('desktop')"><span class="g">💻</span><span class="l">Máy tính</span></button>
+    <button class="dev-btn" data-dev="tablet" onclick="lockDev('tablet')"><span class="g">▦</span><span class="l">iPad</span></button>
+    <button class="dev-btn" data-dev="mobile" onclick="lockDev('mobile')"><span class="g">📱</span><span class="l">Mobile</span></button>
+    <button class="dev-btn" data-dev="auto" onclick="lockDev(null)"><span class="g">↺</span><span class="l">Tự động</span></button>
+  </div>
+  <div class="demo-jump">
+    <span class="demo-note">Dữ liệu mẫu — bấm vào các đơn / khách hàng để thao tác</span>
+    <select onchange="if(this.value)go(this.value);this.selectedIndex=0" id="jump">
+      <option value="">Chuyển nhanh màn hình…</option>
+      <option value="screen-login">Đăng nhập</option>
+      <option value="screen-dashboard">Dashboard</option>
+      <option value="screen-orders">Đơn hàng</option>
+      <option value="screen-shipment">Chi tiết đơn hàng</option>
+      <option value="screen-customers">Khách hàng</option>
+      <option value="screen-customer">Hồ sơ khách hàng</option>
+      <option value="screen-quotations">Báo giá</option>
+      <option value="screen-tracking">Tracking công khai</option>
+      <option value="screen-driver">App tài xế (mobile)</option>
+    </select>
+  </div>
+</div>
+
+<div class="app">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar">
+    <div class="nav-group">Tổng quan</div>
+    <button class="nav-item" data-nav="screen-dashboard" onclick="go('screen-dashboard')"><svg class="ic"><use href="#i-grid"/></svg><span class="nl">Dashboard</span></button>
+    <div class="nav-group">Vận hành</div>
+    <button class="nav-item" data-nav="screen-orders" onclick="go('screen-orders')"><svg class="ic"><use href="#i-box"/></svg><span class="nl">Đơn hàng</span><span class="cnt">10</span></button>
+    <button class="nav-item" onclick="toast('Module Tracking nội bộ — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-pin"/></svg><span class="nl">Theo dõi</span></button>
+    <button class="nav-item" onclick="toast('Module Điều phối pickup — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-truck"/></svg><span class="nl">Điều phối</span></button>
+    <div class="nav-group">Kinh doanh</div>
+    <button class="nav-item" data-nav="screen-customers" onclick="go('screen-customers')"><svg class="ic"><use href="#i-users"/></svg><span class="nl">Khách hàng</span></button>
+    <button class="nav-item" data-nav="screen-quotations" onclick="go('screen-quotations')"><svg class="ic"><use href="#i-file"/></svg><span class="nl">Báo giá</span></button>
+    <div class="nav-group">Mở rộng</div>
+    <button class="nav-item" onclick="toast('Bảng giá cước & hợp đồng — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-cal"/></svg><span class="nl">Bảng giá</span></button>
+    <button class="nav-item" onclick="toast('Module Tài chính / Công nợ — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-file"/></svg><span class="nl">Tài chính</span><span class="soon">Sắp có</span></button>
+    <button class="nav-item" onclick="toast('Module Tải biển / Tải bay — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-globe"/></svg><span class="nl">Vận tải quốc tế</span><span class="soon">Sắp có</span></button>
+    <button class="nav-item" onclick="go('screen-tracking')"><svg class="ic"><use href="#i-search"/></svg><span class="nl">Tracking công khai</span></button>
+    <button class="nav-item" onclick="go('screen-driver')"><svg class="ic"><use href="#i-phone"/></svg><span class="nl">App tài xế</span></button>
+    <div class="nav-group">Hệ thống</div>
+    <button class="nav-item" onclick="toast('Quản trị người dùng & phân quyền — sẽ có trong phiên bản đầy đủ')"><svg class="ic"><use href="#i-user"/></svg><span class="nl">Người dùng</span><span class="soon">Sắp có</span></button>
+  </aside>
+
+  <div class="main">
+    <!-- ============ TOPBAR ============ -->
+    <header class="topbar" id="topbar">
+      <div class="gsearch" onclick="openCmdk()"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Tìm đơn, khách hàng, mã tracking…  (Ctrl+K)" readonly style="cursor:pointer"></div>
+      <div class="tb-right">
+        <button class="branch">🏢 Trụ sở chính — TP.HCM <svg class="ic"><use href="#i-chevd"/></svg></button>
+        <button class="icon-btn" onclick="toggleDrop('drop-noti')" title="Thông báo"><svg class="ic"><use href="#i-bell"/></svg><span class="dot"></span></button>
+        <button class="icon-btn" onclick="toggleTheme()" title="Giao diện sáng / tối"><svg class="ic"><use href="#i-moon"/></svg></button>
+        <button class="icon-btn tb-globe" onclick="toast('Đa ngôn ngữ: Việt / English / 中文 — sẽ có ở bản đầy đủ')"><svg class="ic"><use href="#i-globe"/></svg></button>
+        <button class="avatar" onclick="toggleDrop('drop-user')" title="Tài khoản">LM</button>
+      </div>
+      <div class="drop" id="drop-noti">
+        <div class="dh">Thông báo <span class="right hint" id="noti-count"></span></div>
+        <div id="noti-list" style="max-height:340px;overflow:auto"></div>
+        <div class="df"><button class="btn ghost sm" onclick="toast('Đã đánh dấu tất cả đã đọc (demo)')">Đánh dấu tất cả đã đọc</button></div>
+      </div>
+      <div class="drop" id="drop-user" style="width:280px">
+        <div style="display:flex;gap:12px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)">
+          <div class="avatar" style="width:42px;height:42px;cursor:default">LM</div>
+          <div><b style="font-size:14px">Lê Thị Mai</b><div class="hint">Chăm sóc khách hàng · Trụ sở chính</div></div>
+        </div>
+        <button class="umenu" onclick="toggleTheme()"><svg class="ic"><use href="#i-moon"/></svg> Giao diện sáng / tối</button>
+        <button class="umenu" onclick="toast('Hồ sơ cá nhân — demo')"><svg class="ic"><use href="#i-user"/></svg> Hồ sơ cá nhân</button>
+        <button class="umenu" onclick="toast('Cài đặt hệ thống — sẽ có ở bản đầy đủ')"><svg class="ic"><use href="#i-cal"/></svg> Cài đặt</button>
+        <button class="umenu" onclick="closeDrops();go('screen-login')" style="color:var(--bad)"><svg class="ic"><use href="#i-out"/></svg> Đăng xuất</button>
+      </div>
+    </header>
+
+    <main class="content" id="viewport">
+
+      <!-- ============ LOGIN ============ -->
+      <section class="screen" id="screen-login">
+        <div class="login-wrap">
+          <div class="auth-side">
+            <div>
+              <div class="demo-logo" style="color:#fff;margin-bottom:46px"><span class="cube">🚚</span> Logistics OS</div>
+              <h2>Hệ điều hành<br>cho doanh nghiệp<br>logistics của bạn</h2>
+              <div class="auth-feat"><svg class="ic"><use href="#i-check"/></svg> Quản lý đơn hàng — vận tải — tracking thời gian thực</div>
+              <div class="auth-feat"><svg class="ic"><use href="#i-check"/></svg> Báo giá, hóa đơn, công nợ tích hợp một hệ thống</div>
+              <div class="auth-feat"><svg class="ic"><use href="#i-check"/></svg> App tài xế, QR/POD, cổng khách hàng & API/EDI</div>
+            </div>
+            <div style="color:rgba(185,199,242,.55);font-size:12px">© 2026 Logistics OS · TMS + Freight Forwarding Platform</div>
+          </div>
+          <div class="auth-form">
+            <div class="login-card">
+              <h1 style="font-size:26px;font-weight:800;letter-spacing:-.03em">Đăng nhập</h1>
+              <p style="color:var(--text2);margin:8px 0 26px">Chào mừng trở lại. Vui lòng đăng nhập để tiếp tục.</p>
+              <div class="field"><label>Email công ty</label><input class="inp" value="mai.le@logisticsos.vn"></div>
+              <div class="field"><label>Mật khẩu</label><input class="inp" type="password" value="demopass"></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0 20px">
+                <label style="display:flex;gap:7px;align-items:center;font-size:13px;color:var(--text2)"><input type="checkbox" checked> Ghi nhớ thiết bị</label>
+                <a href="javascript:toast('Quên mật khẩu — gửi email đặt lại (demo)')">Quên mật khẩu?</a>
+              </div>
+              <button class="btn primary" style="width:100%;justify-content:center;padding:12px" onclick="go('screen-dashboard')">Đăng nhập</button>
+              <p class="hint" style="text-align:center;margin-top:16px">Đăng nhập 2 lớp (2FA) & quản lý phiên thiết bị — có ở bản đầy đủ</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ DASHBOARD — HERO COMMAND CENTER ============ -->
+      <section class="screen" id="screen-dashboard">
+        <div class="hero">
+          <div class="hero-top">
+            <div>
+              <div class="hero-eyebrow"><span class="live-dot"></span> Live Operations</div>
+              <h1 class="hero-title">Trung tâm điều hành</h1>
+              <div class="hero-sub" id="hero-clock">—</div>
+            </div>
+            <div class="hero-actions">
+              <button class="btn ghost" onclick="exportCSV()"><svg class="ic"><use href="#i-down"/></svg> Xuất CSV</button>
+              <button class="btn primary" onclick="go('screen-orders')"><svg class="ic"><use href="#i-plus"/></svg> Tạo đơn hàng</button>
+            </div>
+          </div>
+          <div class="hero-grid" id="hero-kpis"></div>
+        </div>
+        <div class="grid-2 mt">
+          <div class="card">
+            <div class="card-h"><svg class="ic"><use href="#i-down"/></svg> Revenue Chart <span class="right hint">7 ngày gần nhất · triệu ₫</span></div>
+            <div class="card-b" id="chart-rev"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><svg class="ic"><use href="#i-box"/></svg> Shipment Activity</div>
+            <div class="card-b donut-wrap">
+              <svg id="chart-donut" width="150" height="150" viewBox="0 0 42 42" style="flex:none"></svg>
+              <div id="donut-legend" style="flex:1;display:grid;row-gap:9px;font-size:12.5px"></div>
+            </div>
+          </div>
+        </div>
+        <div class="grid-2 mt">
+          <div class="card">
+            <div class="card-h"><svg class="ic"><use href="#i-box"/></svg> Recent Orders <span class="right"><button class="btn soft sm" onclick="go('screen-orders')">Xem tất cả <svg class="ic"><use href="#i-chevr"/></svg></button></span></div>
+            <div class="only-tbl"><table class="tbl" id="tbl-recent"></table></div>
+            <div class="cards" id="cards-recent" style="padding:2px 12px 12px"></div>
+          </div>
+          <div class="card">
+            <div class="card-h"><svg class="ic"><use href="#i-alert"/></svg> Critical Alerts</div>
+            <div id="alerts"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ ORDERS ============ -->
+      <section class="screen" id="screen-orders">
+        <div class="page-head">
+          <div><h1>Đơn hàng / Shipments</h1><div class="sub">Quản lý toàn bộ đơn — bấm vào một đơn để xem chi tiết & hành trình</div></div>
+          <div class="actions">
+            <button class="btn ghost" onclick="exportCSV()"><svg class="ic"><use href="#i-down"/></svg> Xuất CSV</button>
+            <button class="btn primary" onclick="openNewOrder()"><svg class="ic"><use href="#i-plus"/></svg> Tạo đơn hàng</button>
+          </div>
+        </div>
+        <div class="filters" id="order-filters"></div>
+        <div style="display:flex;gap:12px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+          <div class="searchbar"><svg class="ic"><use href="#i-search"/></svg><input id="order-q" placeholder="Tìm mã đơn, khách hàng, tuyến…" oninput="renderOrders()"></div>
+          <span class="hint" id="order-count"></span>
+        </div>
+        <div class="card only-tbl"><div class="tbl-wrap"><table class="tbl" id="tbl-orders"></table></div></div>
+        <div class="cards" id="cards-orders"></div>
+      </section>
+
+      <!-- ============ SHIPMENT DETAIL — MISSION ============ -->
+      <section class="screen" id="screen-shipment">
+        <div class="page-head">
+          <div style="display:flex;gap:12px;align-items:center">
+            <button class="icon-btn" style="border:1px solid var(--border)" onclick="go('screen-orders')"><svg class="ic"><use href="#i-back"/></svg></button>
+            <div>
+              <h1 style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><span class="mono" style="font-size:19px" id="shp-code"></span> <span id="shp-badge"></span></h1>
+              <div class="sub" id="shp-sub"></div>
+            </div>
+          </div>
+          <div class="actions">
+            <button class="btn ghost" onclick="openLabel()"><svg class="ic"><use href="#i-print"/></svg> In nhãn</button>
+            <button class="btn ghost" onclick="openLabel()"><svg class="ic"><use href="#i-qr"/></svg> QR</button>
+            <button class="btn primary" onclick="openStatus()"><svg class="ic"><use href="#i-check"/></svg> Cập nhật trạng thái</button>
+          </div>
+        </div>
+        <div class="mission-hero" id="shp-hero"></div>
+        <div class="grid-detail">
+          <div class="map-ph" id="shp-map"></div>
+          <div id="shp-cards" style="display:grid;gap:14px;align-content:start"></div>
+        </div>
+        <div class="card">
+          <div class="tabs">
+            <button class="tab on" onclick="shpTab(this,'shp-tab-ov')">Tổng quan</button>
+            <button class="tab" onclick="shpTab(this,'shp-tab-tl')">Hành trình & Tracking</button>
+            <button class="tab" onclick="shpTab(this,'shp-tab-doc')">Chứng từ</button>
+            <button class="tab" onclick="shpTab(this,'shp-tab-ch')">Chi phí</button>
+          </div>
+          <div class="tabpane on" id="shp-tab-ov"></div>
+          <div class="tabpane" id="shp-tab-tl"></div>
+          <div class="tabpane" id="shp-tab-doc"></div>
+          <div class="tabpane" id="shp-tab-ch"></div>
+        </div>
+      </section>
+
+      <!-- ============ CUSTOMERS ============ -->
+      <section class="screen" id="screen-customers">
+        <div class="page-head">
+          <div><h1>Khách hàng</h1><div class="sub">CRM — bấm vào khách hàng để xem hồ sơ, công nợ, lịch sử</div></div>
+          <div class="actions"><button class="btn primary" onclick="toast('Tạo khách hàng mới — demo')"><svg class="ic"><use href="#i-plus"/></svg> Thêm khách hàng</button></div>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:12px"><div class="searchbar"><svg class="ic"><use href="#i-search"/></svg><input placeholder="Tìm khách hàng, MST, người liên hệ…" oninput="renderCustomers(this.value)"></div></div>
+        <div class="card only-tbl"><table class="tbl" id="tbl-customers"></table></div>
+        <div class="cards" id="cards-customers"></div>
+      </section>
+
+      <!-- ============ CUSTOMER PROFILE ============ -->
+      <section class="screen" id="screen-customer">
+        <div class="page-head">
+          <div style="display:flex;gap:12px;align-items:center">
+            <button class="icon-btn" style="border:1px solid var(--border)" onclick="go('screen-customers')"><svg class="ic"><use href="#i-back"/></svg></button>
+            <div><h1 id="cust-name"></h1><div class="sub" id="cust-sub"></div></div>
+          </div>
+          <div class="actions"><button class="btn ghost" onclick="go('screen-quotations')">Tạo báo giá</button><button class="btn primary" onclick="go('screen-orders')">Tạo đơn hàng</button></div>
+        </div>
+        <div class="hero-grid" id="cust-kpis" style="margin-bottom:16px"></div>
+        <div class="grid-2">
+          <div class="card"><div class="card-h"><svg class="ic"><use href="#i-box"/></svg> Đơn hàng gần đây</div><table class="tbl" id="tbl-cust-orders"></table></div>
+          <div class="card"><div class="card-h"><svg class="ic"><use href="#i-file"/></svg> Hóa đơn & thanh toán</div><table class="tbl" id="tbl-cust-inv"></table></div>
+        </div>
+      </section>
+
+      <!-- ============ QUOTATIONS ============ -->
+      <section class="screen" id="screen-quotations">
+        <div class="page-head">
+          <div><h1>Báo giá</h1><div class="sub">Báo giá vận chuyển — bấm để xem bản PDF gửi khách hàng</div></div>
+          <div class="actions"><button class="btn primary" onclick="toast('Tạo báo giá mới — demo')"><svg class="ic"><use href="#i-plus"/></svg> Tạo báo giá</button></div>
+        </div>
+        <div class="card only-tbl"><table class="tbl" id="tbl-quotes"></table></div>
+        <div class="cards" id="cards-quotes"></div>
+      </section>
+
+      <!-- ============ PUBLIC TRACKING ============ -->
+      <section class="screen" id="screen-tracking">
+        <div style="max-width:760px;margin:0 auto">
+          <div class="trk-hero">
+            <div class="demo-logo" style="justify-content:center;color:var(--brand);margin-bottom:14px"><span class="cube">🚚</span> Logistics OS</div>
+            <h1>Theo dõi lô hàng</h1>
+            <p class="hint" style="margin-top:8px">Nhập mã tracking (VD: <span class="mono">SHP-2026-0128</span>) để xem hành trình</p>
+          </div>
+          <div class="trk-glow">
+            <div class="card" style="padding:18px;display:flex;gap:10px;flex-wrap:wrap">
+              <div class="searchbar" style="flex:1;width:auto"><svg class="ic"><use href="#i-search"/></svg><input id="trk-input" placeholder="Mã tracking / mã đơn…" value="SHP-2026-0128" onkeydown="if(event.key==='Enter')trk()"></div>
+              <button class="btn primary" style="padding:0 24px" onclick="trk()">Theo dõi</button>
+            </div>
+          </div>
+          <div id="trk-result"></div>
+        </div>
+      </section>
+
+      <!-- ============ DRIVER APP ============ -->
+      <section class="screen" id="screen-driver">
+        <div class="page-head">
+          <div><h1>App tài xế — Mobile</h1><div class="sub">Nhận chuyến → quét QR → chụp ảnh → ký nhận → hoàn tất (đồng bộ realtime)</div></div>
+        </div>
+        <div class="driver-wrap">
+          <div class="phone">
+            <div class="ph-status"><span>9:41</span><span>▲ ● ▮</span></div>
+            <div id="ph-screen-today">
+              <div class="ph-head"><div style="display:flex;align-items:center;justify-content:space-between"><div><b style="font-size:18px">Hôm nay</b><div class="hint">T3, 29/09 · Nguyễn Văn Bình · 51K-123.45</div></div><div class="avatar" style="cursor:default">NB</div></div></div>
+              <div class="ph-body" id="trip-list"></div>
+            </div>
+            <div id="ph-screen-trip" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+              <div class="ph-head" style="background:var(--surface);border-bottom:1px solid var(--border);display:flex;gap:10px;align-items:center">
+                <button class="icon-btn" onclick="drvBack()" style="border:1px solid var(--border)"><svg class="ic"><use href="#i-back"/></svg></button>
+                <div><b id="drv-code" style="font-size:15px" class="mono"></b><div class="hint" id="drv-type"></div></div>
+              </div>
+              <div class="ph-body" id="drv-body"></div>
+            </div>
+            <div class="ph-nav">
+              <div class="on"><svg class="ic"><use href="#i-home"/></svg> Chuyến</div>
+              <div><svg class="ic"><use href="#i-scan"/></svg> Quét QR</div>
+              <div><svg class="ic"><use href="#i-clock"/></svg> Lịch sử</div>
+              <div><svg class="ic"><use href="#i-user"/></svg> Tài khoản</div>
+            </div>
+          </div>
+          <div style="max-width:420px">
+            <div class="card"><div class="card-h"><svg class="ic"><use href="#i-scan"/></svg> Luồng thao tác tài xế</div><div class="card-b"><div class="tl" id="driver-flow-hint"></div></div></div>
+            <p class="hint" style="margin-top:12px">Nút thao tác lớn, dùng được một tay khi đang di chuyển. Sau khi tài xế xác nhận, trạng thái đơn trên dashboard của điều phối <b>cập nhật realtime</b>.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ============ NEW ORDER MODAL ============ -->
+<div class="modal-back" id="neworder-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="paper" style="width:600px">
+    <div class="paper-h"><b style="font-size:16px">Tạo đơn hàng mới</b><button class="icon-btn" onclick="document.getElementById('neworder-modal').classList.remove('open')"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="paper-b">
+      <div class="f2">
+        <div class="field"><label>Khách hàng</label><select class="inp" id="no-cust"></select></div>
+        <div class="field"><label>Loại hình vận chuyển</label><select class="inp" id="no-mode"><option>Đường bộ</option><option>Đường biển FCL</option><option>Đường hàng không</option></select></div>
+        <div class="field"><label>Nơi gửi</label><input class="inp" id="no-org" value="Quận 7, TP.HCM"></div>
+        <div class="field"><label>Nơi nhận</label><input class="inp" id="no-dest" value="Cầu Giấy, Hà Nội"></div>
+        <div class="field"><label>Khối lượng (kg)</label><input class="inp" id="no-w" type="number" value="1200" min="1"></div>
+        <div class="field"><label>Số kiện</label><input class="inp" id="no-p" type="number" value="30" min="1"></div>
+      </div>
+      <div class="field"><label>Dịch vụ</label><select class="inp" id="no-svc"><option>Giao nhanh 48h</option><option>Giao tiêu chuẩn</option><option>Door-to-door</option></select></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><button class="btn primary" onclick="createOrder()"><svg class="ic"><use href="#i-check"/></svg> Tạo đơn</button><button class="btn ghost" onclick="document.getElementById('neworder-modal').classList.remove('open')">Hủy</button><span class="hint" style="margin-left:auto">Hệ thống tự tính cước tạm tính theo bảng giá</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STATUS MODAL ============ -->
+<div class="modal-back" id="status-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="paper" style="width:470px">
+    <div class="paper-h"><b style="font-size:16px">Cập nhật trạng thái đơn</b><button class="icon-btn" onclick="document.getElementById('status-modal').classList.remove('open')"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="paper-b">
+      <div class="hint" style="margin-bottom:12px">Đơn <span class="mono" id="st-code"></span> · hiện tại: <span id="st-cur" style="font-weight:700;color:var(--text)"></span></div>
+      <div style="display:grid;gap:8px" id="st-list"></div>
+      <p class="hint" style="margin-top:12px">Mỗi lần đổi trạng thái sẽ ghi một sự kiện mới vào hành trình tracking kèm người thực hiện & thời gian.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ LABEL MODAL ============ -->
+<div class="modal-back" id="label-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="paper" style="width:400px">
+    <div class="paper-h"><b style="font-size:16px">Nhãn vận đơn — QR & Barcode</b><button class="icon-btn" onclick="document.getElementById('label-modal').classList.remove('open')"><svg class="ic"><use href="#i-x"/></svg></button></div>
+    <div class="paper-b" style="display:flex;justify-content:center"><div id="label-card" class="labelcard"></div></div>
+    <div style="padding:12px 18px;border-top:1px solid var(--border);display:flex;gap:10px"><button class="btn primary" style="flex:1;justify-content:center" onclick="toast('Đã gửi lệnh in sang máy in thermal (demo)')"><svg class="ic"><use href="#i-print"/></svg> In nhãn</button><button class="btn ghost" onclick="document.getElementById('label-modal').classList.remove('open')">Đóng</button></div>
+  </div>
+</div>
+
+<!-- ============ QUOTATION MODAL ============ -->
+<div class="modal-back" id="quote-modal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="paper" id="quote-paper"></div>
+</div>
+
+<!-- ============ COMMAND PALETTE ============ -->
+<div class="cmdk-back" id="cmdk" onclick="if(event.target===this)closeCmdk()">
+  <div class="cmdk">
+    <div class="cmdk-in"><svg class="ic"><use href="#i-search"/></svg><input id="cmdk-q" placeholder="Tìm đơn hàng, khách hàng, báo giá, màn hình…" oninput="renderCmdk()" onkeydown="cmdkKeys(event)"></div>
+    <div class="cmdk-list" id="cmdk-list"></div>
+    <div class="cmdk-foot"><span>↑↓ di chuyển</span><span>Enter mở</span><span>ESC đóng</span><span style="margin-left:auto">Ctrl + K</span></div>
+  </div>
+</div>
+
+<!-- ============ MOBILE DOCK + FAB ============ -->
+<div class="fab-back" onclick="fabToggle()"></div>
+<nav class="mnav" id="mnav">
+  <button data-m="screen-dashboard" onclick="go('screen-dashboard')"><svg class="ic"><use href="#i-grid"/></svg><span>Thống kê</span></button>
+  <button data-m="screen-orders" onclick="go('screen-orders')"><svg class="ic"><use href="#i-box"/></svg><span>Đơn hàng</span></button>
+  <div class="fab-wrap">
+    <div class="fab-fan">
+      <button onclick="fabGo('screen-tracking')"><svg class="ic"><use href="#i-search"/></svg><span>Tracking</span></button>
+      <button onclick="fabGo('screen-driver')"><svg class="ic"><use href="#i-phone"/></svg><span>Tài xế</span></button>
+      <button onclick="fabGo('screen-login')"><svg class="ic"><use href="#i-out"/></svg><span>Đăng xuất</span></button>
+    </div>
+    <button class="fab" onclick="fabToggle()" aria-label="Mở thêm"><svg class="ic"><use href="#i-plus"/></svg></button>
+  </div>
+  <button data-m="screen-customers" onclick="go('screen-customers')"><svg class="ic"><use href="#i-users"/></svg><span>Khách hàng</span></button>
+  <button data-m="screen-quotations" onclick="go('screen-quotations')"><svg class="ic"><use href="#i-file"/></svg><span>Báo giá</span></button>
+</nav>
+
+<div id="toast"></div>
+
+<script>
+/* ============================================================
+   LOGISTICS OS — CORE DATA
+   ============================================================ */
+const ST = {
+  NEW:['Mới','#0EA5E9','#E0F2FE'], CONFIRMED:['Đã xác nhận','#6366F1','#EEF2FF'], ASSIGNED:['Đã điều phối','#8B5CF6','#F5F3FF'],
+  PICKUP_PENDING:['Chờ lấy hàng','#A855F7','#FAF5FF'], PICKED_UP:['Đã lấy hàng','#C026D3','#FDF4FF'],
+  IN_WAREHOUSE:['Trong kho','#0D9488','#F0FDFA'], IN_TRANSIT:['Đang vận chuyển','#3B82F6','#DBEAFE'],
+  OUT_FOR_DELIVERY:['Đang giao','#2563EB','#DBEAFE'], DELIVERED:['Đã giao','#10B981','#D1FAE5'], COMPLETED:['Hoàn tất','#16A34A','#DCFCE7'],
+  DELAYED:['Trễ','#B45309','#FEF3C7'], ON_HOLD:['Tạm giữ','#C2410C','#FFEDD5'], CANCELLED:['Đã hủy','#475569','#F1F5F9'],
+  DRAFT:['Nháp','#94A3B8','#F1F5F9'], SENT:['Đã gửi','#0369A1','#E0F2FE'], APPROVED:['Đã duyệt','#15803D','#DCFCE7'],
+  REJECTED:['Từ chối','#B91C1C','#FFE4E6'], EXPIRED:['Hết hạn','#78716C','#F5F5F4'], OVERDUE:['Quá hạn','#DC2626','#FEE2E2'],
+  PAID:['Đã thanh toán','#16A34A','#DCFCE7'], PARTIAL:['Một phần','#B45309','#FEF3C7'], ISSUED:['Đã phát hành','#4F46E5','#EEF2FF']
+};
+const bg = s => { const x=ST[s]||ST.NEW; return '<span class="badge" style="color:'+x[1]+';background:'+x[2]+'">'+x[0]+'</span>'; };
+const vnd = n => n.toLocaleString('vi-VN')+' ₫';
+
+const SHIPMENTS = [
+ {id:'SHP-2026-0128', ref:'VC-0928-14', cust:'Vĩnh Thịnh Foods', origin:'Quận 7, TP.HCM', dest:'Cầu Giấy, Hà Nội', mode:'Đường bộ', svc:'Giao nhanh 48h', weight:'1.240 kg', pieces:'38 thùng', veh:'51K-123.45 · 3.5T', drv:'Nguyễn Văn Bình', st:'IN_TRANSIT', eta:'30/09 18:00', amt:18500000,
+  events:[
+   {t:'28/09 08:00', ti:'Đơn hàng được tạo', by:'Lê Thị Mai · CSKH', loc:'TP.HCM'},
+   {t:'28/09 09:20', ti:'Điều phối tài xế', by:'Phòng điều phối', loc:'Gán 51K-123.45 · Nguyễn Văn Bình'},
+   {t:'28/09 10:10', ti:'Bắt đầu lấy hàng', by:'Nguyễn Văn Bình', loc:'Quận 7, TP.HCM'},
+   {t:'28/09 11:05', ti:'Lấy hàng thành công', by:'Nguyễn Văn Bình', loc:'Quận 7, TP.HCM'},
+   {t:'28/09 13:30', ti:'Đến kho trung chuyển', by:'Hệ thống', loc:'Khu vận hành Bình Dương'},
+   {t:'29/09 05:00', ti:'Rời kho — đi Hà Nội', by:'Nguyễn Văn Bình', loc:'Bình Dương'}]},
+ {id:'SHP-2026-0127', ref:'IMP-0927-03', cust:'Nam Á Electronics', origin:'Cảng Hải Phòng', dest:'Quận 12, TP.HCM', mode:'Đường biển FCL', svc:'Door-to-door', weight:'12.480 kg', pieces:'1×40HC', veh:'MSC ANNA · V.029W', drv:'Hợp đồng hãng tàu', st:'IN_TRANSIT', eta:'03/10 09:00', amt:46200000,
+  events:[
+   {t:'26/09 14:00', ti:'Booking được xác nhận', by:'Ops khai thác biển', loc:'MSC · BK-2026-88412'},
+   {t:'27/09 08:30', ti:'Đóng container tại kho', by:'Kho HP', loc:'Container MSCU 123456-7 · Seal 09281'},
+   {t:'27/09 19:45', ti:'Tàu rời cảng Hải Phòng', by:'Hệ thống', loc:'POL: VICT HPV'},
+   {t:'29/09 04:10', ti:'Tàu cập nhật vị trí', by:'Tracking tích hợp', loc:'Ngoài khơi Nha Trang'},
+   {t:'03/10 (dự kiến)', ti:'Tàu đến cảng Cát Lái', by:'Lịch tàu', loc:'POD: Cát Lái HP'}]},
+ {id:'SHP-2026-0126', ref:'VC-0926-08', cust:'Phong Phú Garment', origin:'Quận 12, TP.HCM', dest:'Hải Châu, Đà Nẵng', mode:'Đường bộ', svc:'Giao tiêu chuẩn', weight:'2.360 kg', pieces:'64 kiện', veh:'51B-456.78 · 8T', drv:'Trần Quốc Cường', st:'DELIVERED', eta:'Đã giao 27/09 15:20', amt:9800000,
+  events:[
+   {t:'26/09 08:00', ti:'Đơn hàng được tạo', by:'Nguyễn Hoàng · Sales', loc:'TP.HCM'},
+   {t:'26/09 09:40', ti:'Lấy hàng thành công', by:'Trần Quốc Cường', loc:'Quận 12, TP.HCM'},
+   {t:'26/09 16:20', ti:'Rời kho trung chuyển', by:'Hệ thống', loc:'Bình Dương'},
+   {t:'27/09 11:05', ti:'Đến điểm giao', by:'Trần Quốc Cường', loc:'Hải Châu, Đà Nẵng'},
+   {t:'27/09 15:20', ti:'Giao hàng thành công (POD)', by:'Trần Quốc Cường', loc:'Ký: Hoàng Minh — Xác nhận đủ 64 kiện', pod:true}]},
+ {id:'SHP-2026-0125', ref:'VC-0928-21', cust:'An Phát Plastics', origin:'Dĩ An, Bình Dương', dest:'Ninh Kiều, Cần Thơ', mode:'Đường bộ', svc:'Giao tiêu chuẩn', weight:'5.100 kg', pieces:'120 thùng', veh:'Chờ điều phối', drv:'—', st:'PICKUP_PENDING', eta:'Dự kiến 01/10', amt:12400000,
+  events:[
+   {t:'28/09 15:45', ti:'Đơn hàng được tạo', by:'API tích hợp khách hàng', loc:'Bình Dương'},
+   {t:'28/09 15:46', ti:'Chờ điều phối xe', by:'Hệ thống', loc:'Đang tìm xe khả dụng'}]},
+ {id:'SHP-2026-0124', ref:'AIR-0928-02', cust:'Vĩnh Thịnh Foods', origin:'TP.HCM', dest:'Quy Nhơn, Bình Định', mode:'Đường hàng không', svc:'Giao nhanh', weight:'380 kg', pieces:'6 kiện', veh:'AWB 294-11882255', drv:'Vietnam Cargo', st:'IN_TRANSIT', eta:'29/09 12:30', amt:7250000,
+  events:[
+   {t:'28/09 09:00', ti:'Đơn hàng được tạo', by:'Lê Thị Mai · CSKH', loc:'TP.HCM'},
+   {t:'28/09 11:30', ti:'Lấy hàng thành công', by:'Phạm Văn Tú', loc:'Quận 1, TP.HCM'},
+   {t:'28/09 17:20', ti:'Gửi hàng tại sân bay TSN', by:'Ops hàng không', loc:'Terminal hàng hóa TSN'},
+   {t:'28/09 22:15', ti:'Chuyến bay VN-1268 rời TSN', by:'Hệ thống', loc:'TP.HCM → Phù Cát'},
+   {t:'29/09 06:40', ti:'Đã đến sân bay Phù Cát', by:'Hệ thống', loc:'Quy Nhơn'}]},
+ {id:'SHP-2026-0123', ref:'VC-0929-01', cust:'Thiên Long Stationery', origin:'Quận 8, TP.HCM', dest:'Long Biên, Hà Nội', mode:'Đường bộ', svc:'Giao tiêu chuẩn', weight:'860 kg', pieces:'24 thùng', veh:'Chờ gán', drv:'—', st:'NEW', eta:'Dự kiến 02/10', amt:6900000,
+  events:[{t:'29/09 08:15', ti:'Đơn hàng được tạo', by:'Cổng khách hàng (portal)', loc:'TP.HCM'}]},
+ {id:'SHP-2026-0122', ref:'AIR-0927-05', cust:'Nam Á Electronics', origin:'TP.HCM', dest:'Từ Liêm, Hà Nội', mode:'Đường hàng không', svc:'Giao nhanh', weight:'210 kg', pieces:'4 kiện', veh:'AWB 294-11902233', drv:'Vietnam Cargo', st:'DELAYED', eta:'ETA mới: 30/09 10:00', amt:5400000,
+  events:[
+   {t:'27/09 10:30', ti:'Lấy hàng thành công', by:'Phạm Văn Tú', loc:'Quận 12, TP.HCM'},
+   {t:'27/09 18:00', ti:'Gửi hàng tại TSN', by:'Ops hàng không', loc:'Terminal hàng hóa TSN'},
+   {t:'28/09 07:20', ti:'CẢNH BÁO: chuyến bay hoãn', by:'Hệ thống', loc:'VN-1122 hoãn do thời tiết — đã thông báo khách'},
+   {t:'29/09 07:00', ti:'Đổi sang chuyến VN-1130', by:'Ops hàng không', loc:'Dự kiến bay 29/09 21:00'}]},
+ {id:'SHP-2026-0121', ref:'VC-0925-17', cust:'Phong Phú Garment', origin:'Quận 12, TP.HCM', dest:'Đức Hòa, Long An', mode:'Đường bộ', svc:'Giao tiêu chuẩn', weight:'1.150 kg', pieces:'30 kiện', veh:'51B-456.78 · 8T', drv:'Trần Quốc Cường', st:'DELIVERED', eta:'Đã giao 26/09 10:40', amt:4200000,
+  events:[
+   {t:'25/09 14:00', ti:'Lấy hàng thành công', by:'Trần Quốc Cường', loc:'Quận 12, TP.HCM'},
+   {t:'26/09 08:10', ti:'Bắt đầu giao hàng', by:'Trần Quốc Cường', loc:'Kho Trung chuyển Long An'},
+   {t:'26/09 10:40', ti:'Giao hàng thành công (POD)', by:'Trần Quốc Cường', loc:'Ký: Thanh Trúc', pod:true}]},
+ {id:'SHP-2026-0120', ref:'VC-0926-11', cust:'An Phát Plastics', origin:'Quận 9, TP.HCM', dest:'Buôn Ma Thuột, Đắk Lắk', mode:'Đường bộ', svc:'Giao tiêu chuẩn', weight:'3.900 kg', pieces:'90 thùng', veh:'51C-789.12 · 8T', drv:'Lê Văn Hòa', st:'ON_HOLD', eta:'Tạm dừng — chờ yêu cầu khách', amt:11800000,
+  events:[
+   {t:'26/09 13:00', ti:'Lấy hàng thành công', by:'Lê Văn Hòa', loc:'Quận 9, TP.HCM'},
+   {t:'26/09 17:30', ti:'Đến kho trung chuyển', by:'Hệ thống', loc:'Khu vận hành Bình Dương'},
+   {t:'27/09 09:00', ti:'TẠM GIỮ theo yêu cầu khách', by:'Lê Thị Mai · CSKH', loc:'Khách yêu cầu hoãn giao đến 02/10'}]},
+ {id:'SHP-2026-0119', ref:'EXP-0922-04', cust:'Đại Phú Trading', origin:'TP.HCM', dest:'Siem Reap, Campuchia', mode:'Đường bộ xuất khẩu', svc:'Cross-border trucking', weight:'2.050 kg', pieces:'55 kiện', veh:'50X-098.76', drv:'Huỳnh Tấn Phát', st:'COMPLETED', eta:'Hoàn tất 24/09', amt:15600000,
+  events:[
+   {t:'22/09 08:30', ti:'Lấy hàng + thủ tục xuất khẩu', by:'Ops cross-border', loc:'Cửa khẩu Mộc Bài'},
+   {t:'23/09 09:00', ti:'Đến điểm giao', by:'Huỳnh Tấn Phát', loc:'Siem Reap, Campuchia'},
+   {t:'23/09 11:45', ti:'Giao hàng thành công (POD)', by:'Huỳnh Tấn Phát', loc:'Ký: Sok Dara', pod:true},
+   {t:'24/09 16:00', ti:'Hoàn tất — xuất hóa đơn', by:'Kế toán', loc:'INV-2026-0881'}]}
+];
+
+const CUSTOMERS = [
+ {name:'Vĩnh Thịnh Foods', mst:'0312345678', ct:'Nguyễn Thị Hạnh', phone:'0903 123 456', grp:'F&B', debt:128400000, limit:300000000, sales:'Phạm Đức Long', over:false},
+ {name:'Nam Á Electronics', mst:'0312456789', ct:'Trịnh Quốc Huy', phone:'0912 345 678', grp:'Điện tử', debt:342700000, limit:500000000, sales:'Phạm Đức Long', over:false},
+ {name:'Phong Phú Garment', mst:'0312567890', ct:'Lê Thanh Tùng', phone:'0938 222 111', grp:'Dệt may', debt:56200000, limit:200000000, sales:'Nguyễn Hoàng', over:false},
+ {name:'An Phát Plastics', mst:'0312678901', ct:'Đỗ Thị Lan', phone:'0977 888 222', grp:'Sản xuất', debt:89500000, limit:100000000, sales:'Nguyễn Hoàng', over:true},
+ {name:'Thiên Long Stationery', mst:'0312789012', ct:'Vũ Minh Quân', phone:'0901 010 101', grp:'Văn phòng phẩm', debt:0, limit:100000000, sales:'Phạm Đức Long', over:false},
+ {name:'Đại Phú Trading', mst:'0312890123', ct:'Trương Công Danh', phone:'0966 555 333', grp:'Thương mại', debt:15600000, limit:80000000, sales:'Nguyễn Hoàng', over:false}
+];
+
+const QUOTES = [
+ {no:'Q-2026-0112', cust:'Vĩnh Thịnh Foods', route:'TP.HCM → Hà Nội', mode:'Đường bộ · Giao nhanh', valid:'Đến 15/10/2026', amt:18500000, st:'APPROVED'},
+ {no:'Q-2026-0111', cust:'Nam Á Electronics', route:'Hải Phòng → TP.HCM', mode:'Đường biển FCL · 40HC', valid:'Đến 10/10/2026', amt:46200000, st:'SENT'},
+ {no:'Q-2026-0110', cust:'Thiên Long Stationery', route:'TP.HCM → Hà Nội', mode:'Đường bộ · Giao tiêu chuẩn', valid:'Đến 20/10/2026', amt:6900000, st:'DRAFT'},
+ {no:'Q-2026-0109', cust:'An Phát Plastics', route:'Bình Dương → Cần Thơ', mode:'Đường bộ · Giao tiêu chuẩn', valid:'Đến 08/10/2026', amt:12400000, st:'SENT'},
+ {no:'Q-2026-0108', cust:'Phong Phú Garment', route:'TP.HCM → Đà Nẵng', mode:'Đường bộ · Giao tiêu chuẩn', valid:'Đến 30/09/2026', amt:9800000, st:'APPROVED'},
+ {no:'Q-2026-0107', cust:'Nam Á Electronics', route:'TP.HCM → Hà Nội', mode:'Đường hàng không', valid:'Hết hạn 25/09/2026', amt:5400000, st:'EXPIRED'}
+];
+
+const TRIPS = [
+ {time:'08:00', type:'PICKUP', code:'SHP-2026-0125', cust:'An Phát Plastics', addr:'Dĩ An, Bình Dương', done:true},
+ {time:'10:30', type:'PICKUP', code:'SHP-2026-0123', cust:'Thiên Long Stationery', addr:'Q.8, TP.HCM', done:false},
+ {time:'13:00', type:'DELIVERY', code:'SHP-2026-0126', cust:'Phong Phú Garment', addr:'Tân Bình, TP.HCM', done:false},
+ {time:'15:30', type:'DELIVERY', code:'SHP-2026-0121', cust:'Phong Phú Garment', addr:'Đức Hòa, Long An', done:false}
+];
+
+/* ============================================================
+   CORE — navigation / toast
+   ============================================================ */
+let curScreen = 'screen-login', curShipment = SHIPMENTS[0], curCustomer = CUSTOMERS[0], orderFilter = 'ALL';
+const $ = id => document.getElementById(id);
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const el = $(id); if(!el) return;
+  el.classList.add('active'); curScreen = id;
+  document.body.classList.toggle('login-mode', id==='screen-login');
+  $('topbar').style.display = (id==='screen-login'||id==='screen-tracking') ? 'flex' : 'flex';
+  document.body.classList.remove('fab-open');
+  closeDrops(); const _ck = $('cmdk'); if(_ck) _ck.classList.remove('open');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active', n.dataset.nav===id));
+  syncNav();
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(id==='screen-shipment') paintShipment();
+  if(id==='screen-customer') paintCustomer();
+  try { history.replaceState(null,'','#/'+id.replace('screen-','')); } catch(e) {}
+}
+
+function toast(msg){
+  const t = $('toast'); t.innerHTML = '<svg class="ic"><use href="#i-alert"/></svg> '+msg;
+  t.classList.add('show'); clearTimeout(window._tt); window._tt = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* ============================================================
+   DASHBOARD — hero KPIs (count-up + sparkline) / charts / alerts
+   ============================================================ */
+let kpiAnimated = false;
+function spark(vals){
+  const mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+  const pts = vals.map(function(v,i){ return (i/(vals.length-1)*68+1).toFixed(1)+','+(22-((v-mn)/((mx-mn)||1))*18+1).toFixed(1); }).join(' ');
+  return '<svg width="72" height="24" style="flex:none"><polyline points="'+pts+'" fill="none" stroke="url(#gspark)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><defs><linearGradient id="gspark" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3B82F6"/><stop offset="1" stop-color="#7C3AED"/></linearGradient></defs></svg>';
+}
+function countUp(el, target, dec, suf){
+  const t0 = performance.now(), dur = 900;
+  (function fr(){
+    const p = Math.min(1, Math.max(0, (performance.now()-t0)/dur)), e = 1-Math.pow(1-p,3);
+    el.textContent = (target*e).toLocaleString('vi-VN',{minimumFractionDigits:dec, maximumFractionDigits:dec}) + (suf||'');
+    if(p<1) requestAnimationFrame(fr);
+  })();
+}
+function paintKpis(){
+  const box = $('hero-kpis'); if(!box) return;
+  const extra = Math.max(0, SHIPMENTS.length-10);
+  const D = [
+   ['Live Operations','Đang vận chuyển — realtime',86,0,'','+3 trong 1 giờ qua','up',[26,30,28,34,32,38,41,44],'i-globe'],
+   ['Revenue Today','Doanh thu ghi nhận hôm nay',842,0,' tr ₫','▲ 6,8% vs hôm qua','up',[640,690,720,700,760,790,820,842],'i-down'],
+   ['Active Shipments','Đơn đang xử lý trong hệ thống',218,0,'','12 đơn quá SLA','warn',[180,195,190,205,210,206,214,218],'i-box'],
+   ['ETA Accuracy','Độ chính xác cam kết ETA',94.2,1,'%','▲ 1,2% so với tuần trước','up',[90,90.5,91,92,92.8,93.4,93.9,94.2],'i-clock'],
+   ['Fleet Status','Đội xe đang hoạt động',28,0,'/32 xe','4 xe đang bảo dưỡng','neutral',[24,25,25,26,27,26,28,28],'i-truck'],
+   ['Tổng đơn tháng','Tất cả đơn phát sinh',1284+extra,0,'','▲ 12% vs tháng trước','up',[38,42,40,47,52,49,58,64],'i-box']
+  ];
+  box.innerHTML = D.map(function(d,i){
+    return '<div class="hkp" style="animation-delay:'+(i*70)+'ms"><div class="hkp-ic"><svg class="ic"><use href="#'+d[8]+'"/></svg></div><div class="lab">'+d[0]+'</div><div class="krow"><div class="val" id="kpi-v'+i+'">0</div>'+spark(d[7])+'</div><span class="delta '+d[6]+'">'+d[5]+'</span><div class="hkp-sub">'+d[1]+'</div></div>';
+  }).join('');
+  D.forEach(function(d,i){
+    const el = $('kpi-v'+i);
+    if(kpiAnimated) el.textContent = d[2].toLocaleString('vi-VN',{minimumFractionDigits:d[3], maximumFractionDigits:d[3]})+d[4];
+  });
+  if(!kpiAnimated){ D.forEach(function(d,i){ countUp($('kpi-v'+i), d[2], d[3], d[4]); }); kpiAnimated = true; }
+}
+function paintDashboard(){
+  paintKpis();
+  const rev = [182,205,168,236,254,148,212], days=['23/09','24/09','25/09','26/09','27/09','28/09','29/09'];
+  const max = Math.max.apply(null, rev);
+  let bars = '';
+  rev.forEach((v,i)=>{
+    const h = Math.round(v/max*130);
+    bars += '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">'
+      + '<b style="font-size:11px;color:var(--text2);font-family:var(--mono)">'+v+'</b>'
+      + '<div style="width:70%;max-width:46px;height:'+(150-h)+'px;display:flex;align-items:flex-end"><div style="width:100%;height:'+h+'px;border-radius:7px 7px 3px 3px;background:'+(i===4?'linear-gradient(180deg,#3B82F6,#7C3AED)':'linear-gradient(180deg,rgba(59,130,246,.75),rgba(124,58,237,.35))')+';box-shadow:'+(i===4?'0 0 18px rgba(59,130,246,.5)':'none')+'"></div></div>'
+      + '<span class="hint">'+days[i]+'</span></div>';
+  });
+  $('chart-rev').innerHTML = '<div style="display:flex;gap:10px;align-items:flex-end;height:190px">'+bars+'</div>';
+  const segs = [['Đã giao',642,'#22C55E'],['Đang vận chuyển',86,'#3B82F6'],['Đang xử lý',218,'#F59E0B'],['Trễ / giữ',23,'#EF4444'],['Khác',45,'#64748B']];
+  const tot = segs.reduce((a,s)=>a+s[1],0); let acc = 25, donut = '', legend = '';
+  segs.forEach(s=>{
+    const pct = s[1]/tot*100;
+    donut += '<circle r="15.9" cx="21" cy="21" fill="transparent" stroke="'+s[2]+'" stroke-width="6" stroke-dasharray="'+pct+' '+(100-pct)+'" stroke-dashoffset="'+acc+'"/>';
+    acc -= pct;
+    legend += '<div style="display:flex;align-items:center;gap:8px"><span style="width:10px;height:10px;border-radius:3px;background:'+s[2]+';flex:none;box-shadow:0 0 8px '+s[2]+'55"></span>'+s[0]+'<b style="margin-left:auto;font-variant-numeric:tabular-nums">'+s[1]+'</b></div>';
+  });
+  const INK = document.body.classList.contains('theme-light') ? '#0F172A' : '#F2F5FA';
+  $('chart-donut').innerHTML = donut + '<text x="21" y="20" text-anchor="middle" style="font-size:6px;font-weight:900;fill:'+INK+'">'+tot.toLocaleString('vi-VN')+'</text><text x="21" y="26" text-anchor="middle" style="font-size:3px;fill:#64748B">đơn hàng</text>';
+  $('donut-legend').innerHTML = legend;
+  const recent = SHIPMENTS.slice(0,6);
+  $('tbl-recent').innerHTML = '<tr><th>Mã đơn</th><th>Khách hàng</th><th>Tuyến</th><th>Trạng thái</th></tr>'
+    + recent.map(s=>'<tr class="rowclick" onclick="openShipment(\''+s.id+'\')"><td class="mono">'+s.id+'</td><td>'+s.cust+'</td><td style="color:var(--text2)">'+s.origin.split(',')[0]+' → '+s.dest.split(',')[0]+'</td><td>'+bg(s.st)+'</td></tr>').join('');
+  $('cards-recent').innerHTML = orderCards(recent);
+  const AL = [
+   ['danger','SHP-2026-0122 — trễ chuyến bay','Đã đổi sang VN-1130 · ETA mới 30/09 10:00'],
+   ['danger','An Phát Plastics — công nợ quá hạn','12.500.000 ₫ quá hạn 12 ngày · hạn mức gần chạm trần'],
+   ['warn','Xe 51H-789.12 sắp hết hạn đăng kiểm','Hết hạn sau 5 ngày — nhắc quản lý xe'],
+   ['info','Báo giá Q-2026-0111 đã gửi khách','Nam Á Electronics · chờ phản hồi 2 ngày'],
+   ['ok','SHP-2026-0126 giao thành công','POD đầy đủ: ảnh + chữ ký · sẵn sàng xuất hóa đơn']];
+  $('alerts').innerHTML = AL.map(a=>'<div class="alert-item"><div class="aic sev '+a[0]+'"><svg class="ic"><use href="#i-alert"/></svg></div><div><div class="t">'+a[1]+'</div><div class="s">'+a[2]+'</div></div></div>').join('');
+  renderNoti(AL);
+}
+
+/* ============================================================
+   ORDERS — filters / search / sort / cards
+   ============================================================ */
+let sortKey = '', sortDir = 1;
+function sortBy(k){ if(sortKey===k) sortDir *= -1; else { sortKey = k; sortDir = 1; } renderOrders(); }
+function paintFilters(){
+  const F = [['ALL','Tất cả',SHIPMENTS.length],['ACTIVE','Đang xử lý',SHIPMENTS.filter(s=>['NEW','CONFIRMED','ASSIGNED','PICKUP_PENDING','PICKED_UP','IN_WAREHOUSE','OUT_FOR_DELIVERY'].includes(s.st)).length],['IN_TRANSIT','Đang vận chuyển',SHIPMENTS.filter(s=>s.st==='IN_TRANSIT').length],['DONE','Đã giao',SHIPMENTS.filter(s=>['DELIVERED','COMPLETED'].includes(s.st)).length],['ISSUE','Trễ / vấn đề',SHIPMENTS.filter(s=>['DELAYED','ON_HOLD','CANCELLED','FAILED_DELIVERY'].includes(s.st)).length]];
+  $('order-filters').innerHTML = F.map(f=>'<button class="chip'+(orderFilter===f[0]?' on':'')+'" onclick="orderFilter=\''+f[0]+'\';paintFilters();renderOrders()">'+f[1]+' <span class="n">'+f[2]+'</span></button>').join('');
+}
+function renderOrders(){
+  const q = ($('order-q').value||'').toLowerCase();
+  let list = SHIPMENTS.filter(s=>{
+    const okF = orderFilter==='ALL' || (orderFilter==='ACTIVE'?['NEW','CONFIRMED','ASSIGNED','PICKUP_PENDING','PICKED_UP','IN_WAREHOUSE','OUT_FOR_DELIVERY'].includes(s.st):orderFilter==='IN_TRANSIT'?s.st==='IN_TRANSIT':orderFilter==='DONE'?['DELIVERED','COMPLETED'].includes(s.st):['DELAYED','ON_HOLD','CANCELLED','FAILED_DELIVERY'].includes(s.st));
+    const okQ = !q || (s.id+' '+s.cust+' '+s.origin+' '+s.dest+' '+(s.ref||'')).toLowerCase().includes(q);
+    return okF && okQ;
+  });
+  if(sortKey){ list = list.slice().sort((a,b)=>{ const va=a[sortKey], vb=b[sortKey]; return (typeof va==='number' && typeof vb==='number' ? va-vb : String(va).localeCompare(String(vb),'vi'))*sortDir; }); }
+  $('order-count').textContent = list.length+' / '+SHIPMENTS.length+' đơn';
+  const sa = k => sortKey===k ? (sortDir>0?' <span style="color:var(--brand)">▲</span>':' <span style="color:var(--brand)">▼</span>') : '';
+  $('tbl-orders').innerHTML = '<tr>'
+   +'<th class="sortable" onclick="sortBy(\'id\')">Mã đơn'+sa('id')+'</th>'
+   +'<th class="sortable" onclick="sortBy(\'cust\')">Khách hàng'+sa('cust')+'</th>'
+   +'<th>Tuyến</th><th>Phương thức</th><th>Khối lượng</th>'
+   +'<th class="sortable" onclick="sortBy(\'st\')">Trạng thái'+sa('st')+'</th>'
+   +'<th>ETA</th>'
+   +'<th class="r sortable" onclick="sortBy(\'amt\')">Giá trị'+sa('amt')+'</th></tr>'
+   + (list.length ? list.map(s=>'<tr class="rowclick" onclick="openShipment(\''+s.id+'\')"><td><span class="mono">'+s.id+'</span><div class="hint">'+(s.ref||'')+'</div></td><td>'+s.cust+'</td><td style="color:var(--text2)">'+s.origin+' → '+s.dest+'</td><td>'+s.mode+'</td><td>'+s.weight+'<div class="hint">'+s.pieces+'</div></td><td>'+bg(s.st)+'</td><td style="color:var(--text2)">'+s.eta+'</td><td class="r"><b>'+vnd(s.amt)+'</b></td></tr>').join('')
+   : '<tr><td colspan="8"><div class="empty"><svg class="ic"><use href="#i-search"/></svg><div>Không tìm thấy đơn hàng phù hợp</div></div></td></tr>');
+  $('cards-orders').innerHTML = orderCards(list);
+}
+function orderCards(list){
+  return list.length ? list.map(s=>'<div class="ocard" onclick="openShipment(\''+s.id+'\')"><div class="or1"><span class="mono">'+s.id+'</span>'+bg(s.st)+'</div><div class="or2">'+s.cust+'</div><div class="or3">'+s.origin+' → '+s.dest+'</div><div class="or4"><span>'+s.mode+' · '+s.weight+'</span><b>'+vnd(s.amt)+'</b></div></div>').join('')
+   : '<div class="empty"><svg class="ic"><use href="#i-search"/></svg><div>Không tìm thấy đơn hàng phù hợp</div></div>';
+}
+function openShipment(id){ curShipment = SHIPMENTS.find(s=>s.id===id)||curShipment; go('screen-shipment'); }
+
+/* ============================================================
+   SHIPMENT DETAIL — mission layout
+   ============================================================ */
+function shpTab(btn, id){
+  document.querySelectorAll('#screen-shipment .tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('#screen-shipment .tabpane').forEach(t=>t.classList.remove('on'));
+  btn.classList.add('on'); $(id).classList.add('on');
+}
+function paintShipment(){
+  const s = curShipment;
+  $('shp-code').textContent = s.id;
+  $('shp-badge').innerHTML = bg(s.st);
+  $('shp-sub').textContent = s.cust+' · '+(s.ref||'');
+  const FLOW = ['NEW','PICKED_UP','IN_TRANSIT','OUT_FOR_DELIVERY','DELIVERED'];
+  let idx = FLOW.indexOf(s.st); if(idx<0) idx = ['DELIVERED','COMPLETED'].includes(s.st)?4:2;
+  const pct = Math.max(8, Math.round((idx+1)/5*100));
+  $('shp-hero').innerHTML = '<div class="mh-main"><div class="mh-status">'+bg(s.st)+'</div><div class="mh-code mono">'+s.id+'</div>'
+   + '<div class="mh-route"><b>'+s.origin+'</b><span class="mh-line"><i style="width:'+pct+'%"></i></span><b>'+s.dest+'</b></div>'
+   + '<div class="mh-meta">'+s.svc+' · '+s.mode+' · '+s.weight+' · '+s.pieces+'</div></div>'
+   + '<div class="mh-side"><div class="mh-cell"><span>ETA</span><b>'+s.eta+'</b></div><div class="mh-cell"><span>Giá trị đơn</span><b class="mono">'+vnd(s.amt)+'</b></div><div class="mh-cell" style="min-width:150px"><span>Tiến độ</span><div class="progress" style="margin-top:6px"><i style="width:'+pct+'%"></i></div></div></div>';
+  $('shp-map').innerHTML = '<div class="map-grid"></div><div class="map-route"></div>'
+   + '<div class="map-pin" style="left:16%;top:56%"><i></i>GỬI</div><div class="map-pin dest" style="left:78%;top:26%"><i></i>NHẬN</div>'
+   + '<div class="map-tag"><svg class="ic"><use href="#i-pin"/></svg> Bản đồ tuyến · '+s.origin.split(',')[0]+' → '+s.dest.split(',')[0]+'</div>';
+  const c = CUSTOMERS.find(x=>x.name===s.cust);
+  $('shp-cards').innerHTML = '<div class="card" style="overflow:visible"><div class="card-h"><svg class="ic"><use href="#i-users"/></svg> Customer Card</div><div class="card-b">'
+   + (c ? '<div class="cd-row"><div class="avatar" style="cursor:default">'+c.ct.split(' ').map(w=>w[0]).slice(0,2).join('')+'</div><div><b>'+c.name+'</b><div class="hint">MST '+c.mst+' · '+c.ct+'</div><div class="hint">'+c.phone+'</div></div></div><div class="cd-stats"><span>Công nợ<br><b>'+vnd(c.debt)+'</b></span><span>Hạn mức<br><b>'+vnd(c.limit)+'</b></span></div>' : '<div class="hint">Khách hàng lẻ — liên hệ CSKH để cập nhật hồ sơ</div>')
+   + '</div></div>'
+   + '<div class="card" style="overflow:visible"><div class="card-h"><svg class="ic"><use href="#i-truck"/></svg> Driver Card</div><div class="card-b">'
+   + (s.drv && s.drv!=='—' ? '<div class="cd-row"><div class="avatar" style="background:linear-gradient(135deg,#06B6D4,#3B82F6);cursor:default">'+s.drv.split(' ').map(w=>w[0]).slice(0,2).join('')+'</div><div><b>'+s.drv+'</b><div class="hint">'+s.veh+'</div><div class="hint">Đánh giá 4.8 ★ · 1.204 chuyến</div></div></div>' : '<div class="empty" style="padding:14px"><div>Chờ điều phối tài xế & phương tiện</div></div>')
+   + '</div></div>';
+  $('shp-tab-ov').innerHTML = '<dl class="kv"><dt>Người gửi</dt><dd>'+s.origin+' · Xem liên hệ</dd><dt>Người nhận</dt><dd>'+s.dest+' · Xem liên hệ</dd><dt>Phương thức</dt><dd>'+s.mode+'</dd><dt>Xe / chuyến</dt><dd>'+s.veh+'</dd><dt>Mã tham chiếu</dt><dd class="mono">'+(s.ref||'—')+'</dd><dt>Ghi chú</dt><dd>'+(s.st==='ON_HOLD'?'Tạm dừng giao theo yêu cầu của khách.':s.st==='DELAYED'?'Đơn trễ — đã thông báo cho khách và đổi phương án vận chuyển.':'Hàng dễ vỡ — dán nhãn cẩn thận, ưu tiên xếp theo lịch giao.')+'</dd></dl>';
+  const evts = s.events;
+  $('shp-tab-tl').innerHTML = '<div class="stepper">'+FLOW.map((f,i)=>{
+    const lbl = {NEW:'Đã tạo',PICKED_UP:'Đã lấy hàng',IN_TRANSIT:'Đang vận chuyển',OUT_FOR_DELIVERY:'Đang giao',DELIVERED:'Đã giao'}[f];
+    const cls = i<idx?'done':(i===idx?'cur':'');
+    return '<div class="step '+cls+'"><div class="sc">'+(i<idx?'✓':(i+1))+'</div><div class="sl">'+lbl+'</div></div>';
+  }).join('')+'</div><div style="padding:6px 18px 18px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:8px;flex-wrap:wrap"><b style="font-size:14px">Tracking Timeline</b><span class="hint">'+evts.length+' sự kiện · GPS + người thực hiện</span></div><div class="tl">'
+   + evts.map((e,i)=>{
+      const last = i===evts.length-1;
+      const isWarn = /CẢNH BÁO|TẠM GIỮ|hoãn/.test(e.ti);
+      return '<div class="tl-item"><div class="tl-dot '+(last?'':'done')+(isWarn?' mut':'')+'" style="'+(isWarn&&!last?'background:rgba(245,158,11,.2);color:#FBBF24;box-shadow:0 0 0 3px rgba(245,158,11,.15)':'')+'"><svg class="ic"><use href="'+(isWarn?'#i-alert':'#i-check')+'"/></svg></div>'
+       + '<div class="tl-time">'+e.t+'</div><div class="tl-title" style="'+(isWarn?'color:#FBBF24':'')+'">'+e.ti+'</div><div class="tl-meta">'+e.by+' · '+e.loc+'</div>'
+       + (e.pod ? '<div class="pod"><div class="ph"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div><div><div class="sig" style="font-style:normal">Ký: '+e.loc.split('Ký: ')[1]+'</div><div class="hint" style="margin-top:6px">Ảnh giao hàng + chữ ký người nhận · Proof of Delivery</div></div></div>' : '')
+       + '</div>';
+     }).join('') + '</div></div>';
+  $('shp-tab-doc').innerHTML = '<div class="doc-gallery">'
+   + ['Hóa đơn GTGT INV-2026-0881.pdf|Hóa đơn|212 KB|28/09','Packing list (danh sách kiện).pdf|Chứng từ lô hàng|184 KB|28/09','Biên bản giao nhận có ký.pdf|POD|1,1 MB|27/09','Vận đơn '+(s.mode.indexOf('biển')>=0?'B/L':'phiếu gửi')+'.pdf|Vận đơn|340 KB|26/09'].map(d=>{const p=d.split('|');
+    return '<div class="doc-item"><div class="dic"><svg class="ic"><use href="#i-file"/></svg></div><div class="grow"><b>'+p[0]+'</b><span>'+p[1]+'</span></div><span class="hint">'+p[2]+' · '+p[3]+'</span><button class="btn soft sm" onclick="toast(\'Tải xuống chứng từ (demo)\')"><svg class="ic"><use href="#i-down"/></svg></button></div>';}).join('')
+   + '</div><div style="padding-top:12px"><button class="btn soft sm" onclick="toast(\'Tải thêm chứng từ — demo\')"><svg class="ic"><use href="#i-plus"/></svg> Tải thêm chứng từ</button></div>';
+  const base = Math.round(s.amt/1.08), vat = s.amt-base;
+  $('shp-tab-ch').innerHTML = '<table class="tbl"><tr><th>Khoản mục</th><th>Chi tiết</th><th class="r">Thành tiền</th></tr>'
+   +'<tr><td>Cước vận chuyển</td><td class="hint">'+s.mode+' · '+s.weight+'</td><td class="r"><b>'+vnd(Math.round(base*0.82))+'</b></td></tr>'
+   +'<tr><td>Phụ phí xăng dầu (FSC)</td><td class="hint">8% cước</td><td class="r">'+vnd(Math.round(base*0.0657))+'</td></tr>'
+   +'<tr><td>Phí lấy & giao hàng</td><td class="hint">2 chiều</td><td class="r">'+vnd(Math.round(base*0.1143))+'</td></tr>'
+   +'<tr><td>VAT 8%</td><td class="hint">Theo hóa đơn GTGT</td><td class="r">'+vnd(vat)+'</td></tr>'
+   +'<tr><td colspan="2" style="font-weight:800">TỔNG CỘNG</td><td class="r"><b style="color:var(--brand);font-size:15px">'+vnd(s.amt)+'</b></td></tr></table>'
+   +'<div style="padding:12px 14px" class="hint">Chi phí tự động nối vào hóa đơn & công nợ của khách hàng khi đơn hoàn tất.</div>';
+}
+
+/* ============================================================
+   CUSTOMERS
+   ============================================================ */
+function renderCustomers(q){
+  q = (q||'').toLowerCase();
+  const list = CUSTOMERS.filter(c=>!q || (c.name+' '+c.mst+' '+c.ct).toLowerCase().includes(q));
+  $('tbl-customers').innerHTML = '<tr><th>Khách hàng</th><th>Mã số thuế</th><th>Người liên hệ</th><th>Nhóm</th><th>Công nợ</th><th>Hạn mức</th><th>Sales</th></tr>'
+   + list.map(c=>{
+      const pct = Math.min(100, Math.round(c.debt/c.limit*100));
+      return '<tr class="rowclick" onclick="openCustomer(\''+c.name+'\')"><td><b>'+c.name+'</b></td><td class="mono">'+c.mst+'</td><td>'+c.ct+'<div class="hint">'+c.phone+'</div></td><td>'+c.grp+'</td>'
+       +'<td><b>'+vnd(c.debt)+'</b>'+(c.over?' <span class="badge" style="color:#DC2626;background:#FEE2E2">QUÁ HẠN</span>':'')+'<div class="progress" style="width:130px;margin-top:7px"><i style="width:'+pct+'%;background:'+(pct>85?'var(--bad)':'var(--grad)')+'"></i></div></td>'
+       +'<td style="color:var(--text2)">'+vnd(c.limit)+'</td><td>'+c.sales+'</td></tr>';
+     }).join('');
+  $('cards-customers').innerHTML = customerCards(list);
+}
+function customerCards(list){
+  return list.length ? list.map(c=>'<div class="ocard" onclick="openCustomer(\''+c.name+'\')"><div class="or1"><b>'+c.name+'</b>'+(c.over?'<span class="badge" style="color:#DC2626;background:#FEE2E2">QUÁ HẠN</span>':'')+'</div><div class="or3">'+c.ct+' · '+c.phone+' · MST '+c.mst+'</div><div class="or4"><span>Công nợ '+vnd(c.debt)+'</span><b>Hạn mức '+(c.limit/1e6)+' tr</b></div></div>').join('')
+   : '<div class="empty"><svg class="ic"><use href="#i-search"/></svg><div>Không tìm thấy khách hàng</div></div>';
+}
+function openCustomer(name){ curCustomer = CUSTOMERS.find(c=>c.name===name)||curCustomer; go('screen-customer'); }
+function paintCustomer(){
+  const c = curCustomer;
+  $('cust-name').textContent = c.name;
+  $('cust-sub').textContent = 'MST '+c.mst+' · '+c.ct+' · '+c.phone+' · Sales: '+c.sales;
+  const my = SHIPMENTS.filter(s=>s.cust===c.name);
+  const rev = my.reduce((a,s)=>a+s.amt,0);
+  const K = [
+   ['Đơn hàng', my.length*14+8, 0, '', 'tổng lịch sử', 'neutral', 'i-box'],
+   ['Doanh thu (gần đây)', rev/1e6, 1, ' tr', '▲ ổn định', 'up', 'i-down'],
+   ['Công nợ hiện tại', c.debt/1e6, 1, ' tr', c.over?'12,5 tr quá hạn':'trong hạn mức', c.over?'down':'neutral', 'i-cal'],
+   ['Hạn mức tín dụng', c.limit/1e6, 0, ' tr', Math.round(c.debt/c.limit*100)+'% sử dụng', 'neutral', 'i-file']
+  ];
+  $('cust-kpis').innerHTML = K.map((d,i)=>'<div class="hkp" style="animation-delay:'+(i*60)+'ms"><div class="hkp-ic"><svg class="ic"><use href="#'+d[6]+'"/></svg></div><div class="lab">'+d[0]+'</div><div class="krow"><div class="val">'+d[1].toLocaleString('vi-VN',{minimumFractionDigits:d[2],maximumFractionDigits:d[2]})+d[3]+'</div></div><span class="delta '+d[4]+'">'+d[5]+'</span></div>').join('');
+  $('tbl-cust-orders').innerHTML = '<tr><th>Mã đơn</th><th>Tuyến</th><th>Trạng thái</th><th class="r">Giá trị</th></tr>'
+   + (my.length?my.map(s=>'<tr class="rowclick" onclick="openShipment(\''+s.id+'\')"><td class="mono">'+s.id+'</td><td style="color:var(--text2)">'+s.origin.split(',')[0]+' → '+s.dest.split(',')[0]+'</td><td>'+bg(s.st)+'</td><td class="r">'+vnd(s.amt)+'</td></tr>').join(''):'<tr><td colspan="4"><div class="empty">Chưa có đơn hàng</div></td></tr>');
+  const inv = [['INV-2026-0881','24/09',15600000,'PAID'],['INV-2026-0875','19/09',46200000,'PARTIAL'],['INV-2026-0866','12/09',12400000,'OVERDUE'],['INV-2026-0854','05/09',18500000,'PAID']];
+  $('tbl-cust-inv').innerHTML = '<tr><th>Số hóa đơn</th><th>Ngày</th><th class="r">Số tiền</th><th>Trạng thái</th></tr>'
+   + inv.map(i=>'<tr><td class="mono">'+i[0]+'</td><td style="color:var(--text2)">'+i[1]+'</td><td class="r">'+vnd(i[2])+'</td><td>'+bg(i[3])+'</td></tr>').join('');
+}
+
+/* ============================================================
+   QUOTATIONS
+   ============================================================ */
+function paintQuotes(){
+  $('tbl-quotes').innerHTML = '<tr><th>Số báo giá</th><th>Khách hàng</th><th>Tuyến</th><th>Phương thức</th><th>Hiệu lực</th><th class="r">Tổng giá trị</th><th>Trạng thái</th></tr>'
+   + QUOTES.map(q=>'<tr class="rowclick" onclick="openQuote(\''+q.no+'\')"><td class="mono">'+q.no+'</td><td><b>'+q.cust+'</b></td><td style="color:var(--text2)">'+q.route+'</td><td>'+q.mode+'</td><td style="color:var(--text2)">'+q.valid+'</td><td class="r"><b>'+vnd(q.amt)+'</b></td><td>'+bg(q.st)+'</td></tr>').join('');
+  $('cards-quotes').innerHTML = quoteCards();
+}
+function quoteCards(){
+  return QUOTES.map(q=>'<div class="ocard" onclick="openQuote(\''+q.no+'\')"><div class="or1"><span class="mono">'+q.no+'</span>'+bg(q.st)+'</div><div class="or2">'+q.cust+'</div><div class="or3">'+q.route+' · '+q.mode+'</div><div class="or4"><span>'+q.valid+'</span><b>'+vnd(q.amt)+'</b></div></div>').join('');
+}
+function openQuote(no){
+  const q = QUOTES.find(x=>x.no===no); const base = Math.round(q.amt/1.08);
+  $('quote-paper').innerHTML =
+   '<div class="paper-h"><div><b style="font-size:17px">BÁO GIÁ VẬN CHUYỂN</b><div class="hint">Số: <span class="mono">'+q.no+'</span> · Ngày 29/09/2026</div></div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn ghost sm" onclick="toast(\'Đã gửi email báo giá cho khách (demo)\')"><svg class="ic"><use href="#i-nav"/></svg> Gửi email</button><button class="btn ghost sm" onclick="toast(\'Đã xuất PDF (demo)\')"><svg class="ic"><use href="#i-down"/></svg> PDF</button><button class="icon-btn" onclick="document.getElementById(\'quote-modal\').classList.remove(\'open\')"><svg class="ic"><use href="#i-x"/></svg></button></div></div>'
+   +'<div class="paper-b"><div style="display:flex;gap:26px;margin-bottom:18px;flex-wrap:wrap"><div style="flex:1;min-width:150px"><div class="hint">KHÁCH HÀNG</div><b>'+q.cust+'</b><div class="hint">MST 0312345678 · TP.HCM</div></div><div style="flex:1;min-width:150px"><div class="hint">TUYẾN / PHƯƠNG THỨC</div><b>'+q.route+'</b><div class="hint">'+q.mode+'</div></div><div style="flex:1;min-width:150px"><div class="hint">HIỆU LỰC</div><b>'+q.valid+'</b><div class="hint">Thanh toán: Công nợ 30 ngày</div></div></div>'
+   +'<table class="tbl"><tr><th>Khoản mục</th><th>Chi tiết</th><th class="r">Thành tiền</th></tr>'
+   +'<tr><td>Cước vận chuyển</td><td class="hint">'+q.mode+'</td><td class="r"><b>'+vnd(Math.round(base*0.82))+'</b></td></tr>'
+   +'<tr><td>Phụ phí xăng dầu</td><td class="hint">8% cước</td><td class="r">'+vnd(Math.round(base*0.0657))+'</td></tr>'
+   +'<tr><td>Phí lấy + giao hàng</td><td class="hint">Door-to-door</td><td class="r">'+vnd(Math.round(base*0.1143))+'</td></tr>'
+   +'<tr><td>VAT 8%</td><td class="hint"></td><td class="r">'+vnd(q.amt-base)+'</td></tr>'
+   +'<tr><td colspan="2" style="font-weight:800">TỔNG CỘNG</td><td class="r"><b style="font-size:15px;color:var(--brand)">'+vnd(q.amt)+'</b></td></tr></table>'
+   +'<p class="hint" style="margin-top:14px">Điều khoản: Giá đã bao gồm bồi thường cơ bản. Hàng dễ vỡ tính phụ phí theo quy định. Báo giá có hiệu lực theo ngày nêu trên. Duyệt báo giá để chuyển thành đơn hàng.</p>'
+   +'<div style="display:flex;gap:10px;margin-top:18px;flex-wrap:wrap"><button class="btn primary" onclick="toast(\'Khách đã duyệt báo giá → tạo đơn hàng (demo)\')"><svg class="ic"><use href="#i-check"/></svg> Duyệt & tạo đơn</button><button class="btn ghost" onclick="document.getElementById(\'quote-modal\').classList.remove(\'open\')">Đóng</button></div></div>';
+  $('quote-modal').classList.add('open');
+}
+
+/* ============================================================
+   PUBLIC TRACKING — skeleton + result
+   ============================================================ */
+function trk(){
+  const code = ($('trk-input').value||'').trim().toUpperCase();
+  const s = SHIPMENTS.find(x=>x.id===code) || SHIPMENTS.find(x=>x.id==='SHP-2026-0128');
+  $('trk-result').innerHTML = '<div class="card" style="padding:18px;margin-top:22px"><div class="skel" style="height:88px;border-radius:16px"></div><div class="skel" style="height:14px;margin-top:14px"></div><div class="skel" style="height:14px;width:62%;margin-top:10px"></div></div>';
+  clearTimeout(window._trkT);
+  window._trkT = setTimeout(()=>{
+    const map = {NEW:0,CONFIRMED:0,ASSIGNED:0,PICKUP_PENDING:0,PICKED_UP:1,IN_WAREHOUSE:1,IN_TRANSIT:2,OUT_FOR_DELIVERY:3,DELIVERED:4,COMPLETED:4,DELAYED:2,ON_HOLD:2};
+    const idx = map[s.st]!==undefined?map[s.st]:2;
+    const pct = Math.max(10,(idx+1)/5*100);
+    $('trk-result').innerHTML =
+     '<div class="card" style="margin-top:22px"><div class="trk-route"><div class="pt"><small>Gửi từ</small><b>'+s.origin+'</b></div><div class="mid"><div class="progress" style="margin-bottom:9px"><i style="width:'+pct+'%"></i></div>'+bg(s.st)+'<div class="hint" style="margin-top:7px">ETA: '+s.eta+'</div></div><div class="pt" style="text-align:right"><small>Giao đến</small><b>'+s.dest+'</b></div></div>'
+     +'<div style="padding:0 18px 18px"><div class="hint" style="margin:6px 0 14px">Mã tracking: <span class="mono">'+s.id+'</span> · Vị trí hiện tại: '+(s.events[s.events.length-1]||{}).loc+' · Cập nhật: '+(s.events[s.events.length-1]||{}).t+'</div><div class="tl">'
+     + s.events.slice(-4).reverse().map((e,i)=>'<div class="tl-item"><div class="tl-dot '+(i===0?'':'done')+'"><svg class="ic"><use href="#i-check"/></svg></div><div class="tl-time">'+e.t+'</div><div class="tl-title">'+e.ti+'</div><div class="tl-meta">'+e.loc+'</div></div>').join('')
+     +'</div>'+(s.events.some(e=>e.pod)?'<div class="pod"><div class="ph"><svg class="ic" style="width:26px;height:26px"><use href="#i-cam"/></svg></div><div><div class="sig">POD đã ký</div><div class="hint" style="margin-top:6px">Proof of Delivery — ảnh + chữ ký người nhận</div></div></div>':'')+'<p class="hint" style="margin-top:12px">Chỉ hiển thị thông tin công khai — chi tiết giá trị & liên hệ chỉ có trên tài khoản của khách hàng.</p></div></div>';
+  }, 420);
+}
+
+/* ============================================================
+   DRIVER APP
+   ============================================================ */
+let curTrip = null;
+function paintTrips(){
+  $('trip-list').innerHTML = TRIPS.map((t,i)=>{
+    return '<div class="trip'+(t.done?' done':'')+'" onclick="drvOpen('+i+')"><div class="time">'+t.time+'<small>'+t.type+'</small></div>'
+     +'<div class="info"><div class="a">'+t.cust+'</div><div class="b">'+t.addr+'</div><div style="margin-top:4px"><span class="mono" style="color:var(--brand)">'+t.code+'</span></div></div>'
+     +(t.done?'<span class="badge" style="color:#4ADE80;background:rgba(34,197,94,.14)">✓</span>':'<div class="go"><svg class="ic"><use href="#i-chevr"/></svg></div>')+'</div>';
+  }).join('');
+  $('driver-flow-hint').innerHTML = ['Nhận chuyến → Bắt đầu','Điều hướng → Đã đến điểm','Quét QR trên kiện hàng','Chụp ảnh hàng hóa','Ký nhận / xác nhận','Hoàn tất — đồng bộ realtime']
+    .map((x,i)=>'<div class="tl-item"><div class="tl-dot '+(i<5?'done':'mut')+'"><svg class="ic"><use href="#i-check"/></svg></div><div class="tl-title">'+x+'</div></div>').join('');
+}
+function drvOpen(i){ curTrip = TRIPS[i]; drvStep(0); }
+function drvBack(){ $('ph-screen-today').style.display=''; $('ph-screen-trip').style.display='none'; paintTrips(); }
+function drvStep(n){
+  const t = curTrip; if(!t) return;
+  $('ph-screen-today').style.display='none';
+  $('ph-screen-trip').style.display='flex';
+  $('drv-code').textContent = t.code;
+  $('drv-type').textContent = (t.type==='PICKUP'?'LẤY HÀNG':'GIAO HÀNG')+' · '+t.time+' · '+t.cust;
+  const B = n<5
+   ? '<div class="bigbtn" onclick="drvStep('+(n+1)+')">'+['BẮT ĐẦU CHUYẾN','TÔI ĐÃ ĐẾN — MỞ BẢN ĐỒ','QUÉT QR KIỆN HÀNG','CHỤP ẢNH XÁC NHẬN','KÝ NHẬN & HOÀN TẤT'][n]+' <svg class="ic"><use href="#i-chevr"/></svg></div>'
+   : '<div class="bigbtn green"><svg class="ic"><use href="#i-check"/></svg> HOÀN TẤT CHUYẾN</div><div style="text-align:center;margin-top:10px" class="hint">Đã đồng bộ về hệ thống điều phối ✓</div><div class="bigbtn gray" style="margin-top:12px" onclick="drvBack()">Về danh sách chuyến</div>';
+  let body = '<div style="background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:14px;margin:8px 0 12px"><div style="display:flex;gap:10px"><svg class="ic" style="color:var(--brand);width:18px;height:18px"><use href="#i-pin"/></svg><div><b style="font-size:14px">'+t.addr+'</b><div class="hint">'+t.cust+' · '+(t.type==='PICKUP'?'Lấy hàng':'Giao hàng')+' · '+t.code+'</div></div></div><div style="margin-top:10px"><button class="btn soft sm" style="width:100%;justify-content:center" onclick="toast(\'Mở Google Maps — demo\')"><svg class="ic"><use href="#i-nav"/></svg> Điều hướng 4,2 km · 12 phút</button></div></div>';
+  if(n===1) body += '<div class="scanner" style="height:170px;display:flex;align-items:center;justify-content:center;color:#7DD3FC;font-weight:700">📍 10.7757° N, 106.7009° E<br>Đã đến điểm '+(t.type==='PICKUP'?'lấy':'giao')+' hàng</div>';
+  if(n===2) body += '<div class="scanner"><div class="frame"><i></i><i></i><i></i><i></i></div><div class="scanline"></div></div><p class="hint" style="text-align:center">Đưa camera vào mã QR trên kiện hàng / vận đơn</p>';
+  if(n===3) body += '<div style="height:210px;border-radius:20px;background:linear-gradient(135deg,rgba(59,130,246,.25),rgba(124,58,237,.22));border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;color:#9DB8F5;margin-bottom:14px;flex-direction:column;gap:8px"><svg class="ic" style="width:34px;height:34px"><use href="#i-cam"/></svg> Ảnh đã chụp (demo)</div>';
+  if(n===4) body += '<div style="height:180px;border-radius:20px;border:1.5px dashed var(--border-2);background:rgba(255,255,255,.04);display:flex;align-items:center;justify-content:center;margin-bottom:14px;font-style:italic;color:var(--text2);font-size:17px">Chữ ký người nhận ở đây</div><div class="field"><label style="font-size:13px">Tên người nhận</label><input class="inp" value="Thanh Trúc"></div>';
+  $('drv-body').innerHTML = body + '<div style="height:8px"></div>' + B + '<div style="height:16px"></div>';
+  if(n===5){ t.done = true; }
+}
+
+/* ============================================================
+   QR LABEL + CSV
+   ============================================================ */
+function qrSVG(seed, size){
+  let h = 0; for(let i=0;i<seed.length;i++){ h = ((h*31) + seed.charCodeAt(i)) >>> 0; }
+  const rnd = function(){ h = (h*1103515245 + 12345) >>> 0; return (h>>>16)/65536; };
+  const N = 21, cells = [];
+  for(let x=0;x<N;x++) for(let y=0;y<N;y++){
+    const inF = (x<8&&y<8)||(x>N-9&&y<8)||(x<8&&y>N-9);
+    if(!inF && rnd()>0.52) cells.push([x,y]);
+  }
+  const finder = function(fx,fy){ for(let i=0;i<7;i++) for(let j=0;j<7;j++){ if(i===0||i===6||j===0||j===6||(i>=2&&i<=4&&j>=2&&j<=4)) cells.push([fx+i,fy+j]); } };
+  finder(0,0); finder(N-7,0); finder(0,N-7);
+  const u = size/N;
+  return '<svg width="'+size+'" height="'+size+'" viewBox="0 0 '+size+' '+size+'" style="display:block"><rect width="'+size+'" height="'+size+'" fill="#fff" rx="4"/>'+cells.map(function(c){ return '<rect x="'+(c[0]*u).toFixed(1)+'" y="'+(c[1]*u).toFixed(1)+'" width="'+(u*0.92).toFixed(1)+'" height="'+(u*0.92).toFixed(1)+'" fill="#0F172A"/>'; }).join('')+'</svg>';
+}
+function openLabel(){
+  const s = curShipment;
+  $('label-card').innerHTML = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px"><b style="font-size:13px">🚚 Logistics OS</b><span class="mono" style="font-size:11px">'+s.id+'</span></div>'
+   + '<div style="display:flex;justify-content:center;margin:6px 0">'+qrSVG(s.id,168)+'</div>'
+   + '<div class="mono" style="font-size:12px;text-align:center">'+s.id+'</div>'
+   + '<div style="font-size:12.5px;margin-top:8px"><b>'+s.cust+'</b></div>'
+   + '<div style="font-size:11.5px;color:#47536D">'+s.origin+' → '+s.dest+'</div>'
+   + '<div style="font-size:11px;color:#47536D;margin-top:2px">'+s.pieces+' · '+s.weight+' · '+s.mode+'</div>'
+   + '<div class="barcode"></div>'
+   + '<div style="font-size:9.5px;color:#7E89A3;text-align:center;margin-top:4px">Quét QR để theo dõi hành trình · Logistics OS</div>';
+  $('label-modal').classList.add('open');
+}
+function exportCSV(){
+  const rows = [['Mã đơn','Tham chiếu','Khách hàng','Nơi gửi','Nơi nhận','Phương thức','Dịch vụ','Khối lượng','Số kiện','Trạng thái','ETA','Giá trị (VND)']]
+   .concat(SHIPMENTS.map(function(s){ return [s.id, s.ref||'', s.cust, s.origin, s.dest, s.mode, s.svc, s.weight, s.pieces, (ST[s.st]||[s.st])[0], s.eta, s.amt]; }));
+  const csv = '\uFEFF' + rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(';'); }).join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+  a.download = 'don-hang-logistics-os.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 3000);
+  toast('Đã xuất '+SHIPMENTS.length+' đơn ra CSV — mở được bằng Excel');
+}
+
+/* ============================================================
+   CREATE ORDER (real)
+   ============================================================ */
+function openNewOrder(){
+  $('no-cust').innerHTML = CUSTOMERS.map(function(c){ return '<option>'+c.name+'</option>'; }).join('');
+  $('neworder-modal').classList.add('open');
+}
+function createOrder(){
+  const cust = $('no-cust').value, mode = $('no-mode').value, org = $('no-org').value||'TP.HCM', dst = $('no-dest').value||'Hà Nội';
+  const w = +($('no-w').value||1000), p = +($('no-p').value||20), svc = $('no-svc').value;
+  if(!(w>0) || !(p>0)){ toast('Vui lòng nhập khối lượng & số kiện hợp lệ'); return; }
+  const rate = mode.indexOf('biển')>=0 ? 3800 : mode.indexOf('không')>=0 ? 9800 : 5200;
+  const amt = Math.round((w*rate + 850000)/10000)*10000;
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0');
+  const id = 'SHP-2026-0'+(129 + SHIPMENTS.filter(function(s){ return s.isNew; }).length);
+  const eta = new Date(now.getTime()+2*86400000).toLocaleDateString('vi-VN',{day:'2-digit',month:'2-digit'});
+  SHIPMENTS.unshift({id:id, ref:'WEB-'+String(now.getTime()).slice(-5), cust:cust, origin:org, dest:dst, mode:mode, svc:svc, weight:w.toLocaleString('vi-VN')+' kg', pieces:p+' kiện', veh:'Chờ điều phối', drv:'—', st:'NEW', eta:'Dự kiến '+eta, amt:amt, isNew:true,
+   events:[{t:'29/09 '+hh, ti:'Đơn hàng được tạo từ web', by:'Lê Thị Mai · CSKH', loc:org}]});
+  const sc = document.querySelector('.nav-item .cnt'); if(sc) sc.textContent = SHIPMENTS.length;
+  $('neworder-modal').classList.remove('open');
+  paintFilters(); renderOrders(); paintDashboard(); go('screen-orders');
+  toast('Đã tạo đơn '+id+' — cước tạm tính '+vnd(amt));
+}
+
+/* ============================================================
+   STATUS UPDATE (real workflow)
+   ============================================================ */
+const NEXT = {
+  NEW:['CONFIRMED','ASSIGNED','CANCELLED'], CONFIRMED:['ASSIGNED','PICKUP_PENDING'], ASSIGNED:['PICKUP_PENDING','PICKED_UP'],
+  PICKUP_PENDING:['PICKED_UP','ON_HOLD'], PICKED_UP:['IN_WAREHOUSE','IN_TRANSIT'], IN_WAREHOUSE:['IN_TRANSIT','OUT_FOR_DELIVERY'],
+  IN_TRANSIT:['OUT_FOR_DELIVERY','DELIVERED','DELAYED'], OUT_FOR_DELIVERY:['DELIVERED'], DELIVERED:['COMPLETED'],
+  DELAYED:['IN_TRANSIT','DELIVERED'], ON_HOLD:['IN_TRANSIT','CANCELLED'], COMPLETED:[], CANCELLED:[]
+};
+function openStatus(){
+  const s = curShipment, nx = NEXT[s.st]||[];
+  $('st-code').textContent = s.id;
+  $('st-cur').textContent = (ST[s.st]||[s.st])[0];
+  $('st-list').innerHTML = nx.length ? nx.map(function(n){
+    return '<button class="chip" style="justify-content:space-between;padding:12px 15px;border-radius:13px" onclick="setStatus(\''+n+'\')">'+bg(n)+'<svg class="ic"><use href="#i-chevr"/></svg></button>';
+  }).join('') : '<div class="empty" style="padding:18px"><div>Đơn đã ở trạng thái cuối — không thể chuyển tiếp</div></div>';
+  $('status-modal').classList.add('open');
+}
+function setStatus(n){
+  const s = curShipment, old = (ST[s.st]||[s.st])[0];
+  s.st = n;
+  s.events.push({t:'29/09 '+new Date().toTimeString().slice(0,5), ti:'Chuyển trạng thái: '+old+' → '+(ST[n]||[n])[0], by:'Lê Thị Mai · CSKH', loc:'Vận hành'});
+  $('status-modal').classList.remove('open');
+  paintShipment(); paintFilters(); renderOrders(); paintDashboard(); trk();
+  toast('Đã cập nhật '+s.id+' → '+(ST[n]||[n])[0]);
+}
+
+/* ============================================================
+   THEME (dark mặc định · light glass)
+   ============================================================ */
+function toggleTheme(){
+  document.body.classList.toggle('theme-light');
+  const light = document.body.classList.contains('theme-light');
+  const u = document.querySelector('.topbar [onclick*="toggleTheme"] use');
+  if(u) u.setAttribute('href', light ? '#i-sun' : '#i-moon');
+  try{ localStorage.setItem('los-theme', light?'light':'dark'); }catch(e){}
+  paintDashboard();
+}
+
+/* ============================================================
+   NOTIFICATION / USER DROPDOWNS
+   ============================================================ */
+function toggleDrop(id){
+  document.querySelectorAll('.drop').forEach(function(d){ if(d.id!==id) d.classList.remove('open'); });
+  $(id).classList.toggle('open');
+}
+function closeDrops(){ document.querySelectorAll('.drop').forEach(function(d){ d.classList.remove('open'); }); }
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.drop') && !e.target.closest('.icon-btn') && !e.target.closest('.avatar')) closeDrops();
+});
+function renderNoti(list){
+  const n = $('noti-list'); if(!n) return;
+  $('noti-count').textContent = list.length + ' cảnh báo';
+  n.innerHTML = list.map(function(a){
+    return '<div class="alert-item"><div class="aic sev '+a[0]+'"><svg class="ic"><use href="#i-alert"/></svg></div><div><div class="t">'+a[1]+'</div><div class="s">'+a[2]+'</div></div></div>';
+  }).join('');
+}
+
+/* ============================================================
+   COMMAND PALETTE (Ctrl+K)
+   ============================================================ */
+let cmdkSel = 0, cmdkItems = [];
+function cmdkData(){
+  const SCR = [['screen-dashboard','Dashboard','#i-grid'],['screen-orders','Đơn hàng','#i-box'],['screen-customers','Khách hàng','#i-users'],['screen-quotations','Báo giá','#i-file'],['screen-tracking','Tracking công khai','#i-search'],['screen-driver','App tài xế','#i-phone']];
+  return SCR.map(function(s){ return {t:s[1], k:'Màn hình', ic:s[2], go:function(){ go(s[0]); }}; })
+   .concat(SHIPMENTS.map(function(s){ return {t:s.id+' — '+s.cust, k:'Đơn hàng · '+s.origin.split(',')[0]+' → '+s.dest.split(',')[0], ic:'i-box', go:function(){ openShipment(s.id); }}; }))
+   .concat(CUSTOMERS.map(function(c){ return {t:c.name, k:'Khách hàng · MST '+c.mst, ic:'i-users', go:function(){ openCustomer(c.name); }}; }))
+   .concat(QUOTES.map(function(q){ return {t:q.no+' — '+q.cust, k:'Báo giá · '+q.route, ic:'i-file', go:function(){ go('screen-quotations'); openQuote(q.no); }}; }));
+}
+function openCmdk(){ $('cmdk').classList.add('open'); $('cmdk-q').value=''; cmdkSel=0; renderCmdk(); setTimeout(function(){ $('cmdk-q').focus(); }, 60); }
+function closeCmdk(){ $('cmdk').classList.remove('open'); }
+function renderCmdk(){
+  const q = ($('cmdk-q').value||'').toLowerCase().trim();
+  const all = cmdkData();
+  cmdkItems = (q ? all.filter(function(x){ return (x.t+' '+x.k).toLowerCase().indexOf(q)>=0; }) : all).slice(0,9);
+  if(cmdkSel >= cmdkItems.length) cmdkSel = 0;
+  $('cmdk-list').innerHTML = cmdkItems.length ? cmdkItems.map(function(x,i){
+    return '<div class="cmdk-item'+(i===cmdkSel?' sel':'')+'" onclick="cmdkGo('+i+')"><svg class="ic"><use href="#'+x.ic+'"/></svg><div><div style="font-weight:600">'+x.t+'</div><div style="font-size:12px;color:var(--muted)">'+x.k+'</div></div>'+(i===cmdkSel?'<span class="k">Enter ↵</span>':'')+'</div>';
+  }).join('') : '<div class="empty" style="padding:22px"><div>Không tìm thấy kết quả phù hợp</div></div>';
+}
+function cmdkGo(i){ if(!cmdkItems[i]) return; closeCmdk(); cmdkItems[i].go(); }
+function cmdkKeys(e){
+  if(e.key==='ArrowDown'){ e.preventDefault(); cmdkSel=Math.min(cmdkSel+1, cmdkItems.length-1); renderCmdk(); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); cmdkSel=Math.max(0, cmdkSel-1); renderCmdk(); }
+  else if(e.key==='Enter'){ e.preventDefault(); cmdkGo(cmdkSel); }
+  else if(e.key==='Escape'){ closeCmdk(); }
+}
+document.addEventListener('keydown', function(e){
+  if((e.ctrlKey||e.metaKey) && (e.key==='k'||e.key==='K')){ e.preventDefault(); openCmdk(); }
+  else if(e.key==='Escape'){ closeCmdk(); closeDrops(); }
+});
+
+/* ============================================================
+   DEVICE MODES — desktop / iPad / mobile (3 layout riêng)
+   ============================================================ */
+function natDev(){ return window.innerWidth<768?'mobile':window.innerWidth<1200?'tablet':'desktop'; }
+function applyDev(d, sim){
+  document.body.classList.remove('d-desktop','d-tablet','d-mobile','sim');
+  document.body.classList.add('d-'+d); if(sim) document.body.classList.add('sim');
+  document.querySelectorAll('.dev-btn').forEach(function(b){ b.classList.toggle('on', b.dataset.dev===d || (b.dataset.dev==='auto' && !document.body.dataset.lock)); });
+}
+function detectDev(){ if(document.body.dataset.lock) return; applyDev(natDev(),false); }
+function lockDev(d){ if(!d){ delete document.body.dataset.lock; detectDev(); return; } document.body.dataset.lock=d; applyDev(d, natDev()!==d); }
+function syncNav(){
+  const m = curScreen==='screen-shipment'?'screen-orders':curScreen==='screen-customer'?'screen-customers':curScreen;
+  document.querySelectorAll('#mnav button[data-m]').forEach(function(b){ b.classList.toggle('on', b.dataset.m===m); });
+}
+function wrapNavLabels(){ document.querySelectorAll('.sidebar .nav-item').forEach(function(b){ Array.prototype.slice.call(b.childNodes).forEach(function(n){ if(n.nodeType===3 && n.textContent.trim().length){ const s=document.createElement('span'); s.className='nl'; s.textContent=n.textContent.trim(); b.replaceChild(s,n); } }); }); }
+
+/* ============================================================
+   MOBILE FAB DOCK
+   ============================================================ */
+function fabToggle(){ document.body.classList.toggle('fab-open'); }
+function fabGo(id){ document.body.classList.remove('fab-open'); go(id); }
+
+/* ============================================================
+   RIPPLE MICRO-INTERACTION
+   ============================================================ */
+document.addEventListener('pointerdown', function(e){
+  const b = e.target.closest('.btn,.chip,.fab,.bigbtn');
+  if(!b) return;
+  const rect = b.getBoundingClientRect();
+  const r = document.createElement('span');
+  r.className = 'ripple';
+  r.style.width = r.style.height = Math.max(rect.width, rect.height)+'px';
+  r.style.left = (e.clientX-rect.left)+'px'; r.style.top = (e.clientY-rect.top)+'px';
+  b.appendChild(r);
+  setTimeout(function(){ r.remove(); }, 660);
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+try{ if(localStorage.getItem('los-theme')==='light') document.body.classList.add('theme-light'); }catch(e){}
+paintDashboard(); paintFilters(); renderOrders(); renderCustomers(); paintQuotes(); paintTrips(); trk();
+wrapNavLabels();
+detectDev();
+window.addEventListener('resize', function(){ clearTimeout(window._rz); window._rz = setTimeout(detectDev, 150); });
+function tickClock(){
+  const el = $('hero-clock'); if(!el) return;
+  const d = new Date();
+  el.textContent = d.toLocaleDateString('vi-VN',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'}) + ' · ' + d.toLocaleTimeString('vi-VN') + ' · Trụ sở chính TP.HCM';
+}
+tickClock(); setInterval(tickClock, 1000);
+const hash = (location.hash||'').replace('#/','').replace('#','');
+const target = hash ? 'screen-'+hash : '';
+go(target && document.getElementById(target) ? target : 'screen-login');
+</script>
+</body>
+</html>
